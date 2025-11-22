@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FastUI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+26899c525f464038a5d280d76202e0590a68cec7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92e9601fa32d3b054ed42c8a56d599847ae78266")]
 [assembly: System.Reflection.AssemblyProductAttribute("FastUI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FastUI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

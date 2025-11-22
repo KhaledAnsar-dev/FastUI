@@ -218,11 +218,11 @@ namespace FastUI.Controls.Input
             textBox.Height = this.Height;
         }
 
-        private string _placeHolderText = string.Empty;
 
-        // This trick clears placeholder text on first click,
-        // and transfers focus to a hidden control when the mouse leaves
-        // to prevent unwanted double-click or stuck focus behavior.
+        // Removes the placeholder on first click so the user
+        // can start typing immediately.
+
+        private string _placeHolderText = string.Empty;
         private void textBox_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(textBox.PlaceholderText))
@@ -230,14 +230,16 @@ namespace FastUI.Controls.Input
 
             textBox.PlaceholderText = string.Empty;
         }
+
+        // Restores the placeholder when leaving the field if no text was entered.
         private void textBox_MouseLeave(object sender, EventArgs e)
         {
-
             if (textBox.Text == string.Empty)
                 textBox.PlaceholderText = _placeHolderText;
 
             fakeFocus.Focus();
         }
+
 
     }
 }

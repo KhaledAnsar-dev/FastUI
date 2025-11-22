@@ -170,23 +170,23 @@ namespace FastUI.Controls.Buttons
         [Browsable(true)]
         [Category("FastText")]
         [Description("Defines the text alignment inside the button.")]
-        public FastTextPosition TextPosition
+        public FastPosition TextPosition
         {
             get
             {
                 return button.TextAlign switch
                 {
-                    HorizontalAlignment.Center => FastTextPosition.Center,
-                    HorizontalAlignment.Right => FastTextPosition.Right,
-                    _ => FastTextPosition.Left
+                    HorizontalAlignment.Center => FastPosition.Center,
+                    HorizontalAlignment.Right => FastPosition.Right,
+                    _ => FastPosition.Left
                 };
             }
             set
             {
                 button.TextAlign = value switch
                 {
-                    FastTextPosition.Center => HorizontalAlignment.Center,
-                    FastTextPosition.Right => HorizontalAlignment.Right,
+                    FastPosition.Center => HorizontalAlignment.Center,
+                    FastPosition.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left
                 };
             }
@@ -223,6 +223,85 @@ namespace FastUI.Controls.Buttons
             set => button.HoverState.BorderColor = value;
         }
 
+        // ----------------------------------------------------------
+        // FAST IMAGE
+        // ----------------------------------------------------------
+
+        [Browsable(true)]
+        [Category("FastImage")]
+        [Description("The image displayed inside the button.")]
+        public Image ButtonImage
+        {
+            get => button.Image;
+            set => button.Image = value;
+            
+        }
+
+        [Browsable(true)]
+        [Category("FastImage")]
+        [Description("Defines the horizontal position of the button image.")]
+        public FastPosition ImagePosition
+        {
+            get
+            {
+                return button.ImageAlign switch
+                {
+                    
+                    HorizontalAlignment.Center => FastPosition.Center,
+                    HorizontalAlignment.Right => FastPosition.Right,
+                    _ => FastPosition.Left
+                };
+            }
+            set
+            {
+                button.ImageAlign = value switch
+                {
+                    FastPosition.Center => HorizontalAlignment.Center,
+                    FastPosition.Right => HorizontalAlignment.Right,
+                    _ => HorizontalAlignment.Left
+                };
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastImage")]
+        [Description("Moves the button image horizontally.")]
+        public int MoveImageHorizontal
+        {
+            get => button.ImageOffset.X;
+            set => button.ImageOffset = new Point(value, button.ImageOffset.Y);
+        }
+
+        [Browsable(true)]
+        [Category("FastImage")]
+        [Description("Moves the button image vertically.")]
+        public int MoveImageVertical
+        {
+            get => -button.ImageOffset.Y;
+            set
+            {
+                int correctedValue = -value;
+                button.ImageOffset = new Point(button.ImageOffset.X, correctedValue);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastImage")]
+        [Description("Defines the width of the button image.")]
+        public int ImageWidth
+        {
+            get => button.ImageSize.Width;
+            set => button.ImageSize = new Size(value, button.ImageSize.Height);
+        }
+
+        [Browsable(true)]
+        [Category("FastImage")]
+        [Description("Defines the height of the button image.")]
+        public int ImageHeight
+        {
+            get => button.ImageSize.Height;
+            set => button.ImageSize = new Size(button.ImageSize.Width, value);
+        }
 
     }
 }

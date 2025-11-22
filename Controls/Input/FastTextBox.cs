@@ -1,4 +1,5 @@
-﻿using FastUI.Helpers;
+﻿using FastUI.Enums;
+using FastUI.Helpers;
 using FastUI.Helpers.Input;
 using System;
 using System.Collections.Generic;
@@ -222,7 +223,8 @@ namespace FastUI.Controls.Input
             get => textBox.Font;
             set => textBox.Font = value;
         }
-
+        
+   
         // ----------------------------------------------------------
         // FAST INTERACTION
         // ----------------------------------------------------------
@@ -288,12 +290,6 @@ namespace FastUI.Controls.Input
         //  INTERNAL EVENTS
         // =====================================================================
 
-        private void FastTextBox_SizeChanged(object sender, EventArgs e)
-        {
-            textBox.Width = this.Width;
-            textBox.Height = this.Height;
-        }
-
         // Removes the placeholder on first click so the user
         // can start typing immediately.
         private void textBox_Click(object sender, EventArgs e)
@@ -322,10 +318,7 @@ namespace FastUI.Controls.Input
                 textBox.BorderColor = Color.Red;
             // 4) Valid → restore original border color
             else
-                textBox.BorderColor = _defaultBorderColor; 
-
-            // 5) Change focus
-            fakeFocus.Focus();
+                textBox.BorderColor = _defaultBorderColor;
         }
         private void textBox_KeyPress(object sender, KeyPressEventArgs e)
         {

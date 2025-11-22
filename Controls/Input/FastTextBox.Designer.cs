@@ -47,6 +47,7 @@
             textBox.DisabledState.FillColor = Color.FromArgb(226, 226, 226);
             textBox.DisabledState.ForeColor = Color.FromArgb(138, 138, 138);
             textBox.DisabledState.PlaceholderForeColor = Color.FromArgb(138, 138, 138);
+            textBox.Dock = DockStyle.Fill;
             textBox.FocusedState.BorderColor = Color.FromArgb(0, 138, 128);
             textBox.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             textBox.ForeColor = Color.Black;
@@ -83,7 +84,6 @@
             Controls.Add(fakeFocus);
             Name = "FastTextBox";
             Size = new Size(141, 34);
-            SizeChanged += FastTextBox_SizeChanged;
             ResumeLayout(false);
         }
 

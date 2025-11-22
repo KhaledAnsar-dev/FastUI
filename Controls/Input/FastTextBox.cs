@@ -322,7 +322,10 @@ namespace FastUI.Controls.Input
                 textBox.BorderColor = Color.Red;
             // 4) Valid → restore original border color
             else
-                textBox.BorderColor = _defaultBorderColor;
+                textBox.BorderColor = _defaultBorderColor; 
+
+            // 5) Change focus
+            fakeFocus.Focus();
         }
         private void textBox_KeyPress(object sender, KeyPressEventArgs e)
         {

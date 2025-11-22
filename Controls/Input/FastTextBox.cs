@@ -19,7 +19,6 @@ namespace FastUI.Controls.Input
             InitializeComponent();
 
         }
-
         // Stores the original border color selected by the user or designer.
         // Used to restore the normal styling after showing validation errors.
         private Color _defaultBorderColor;
@@ -55,6 +54,28 @@ namespace FastUI.Controls.Input
                 Invalidate();
             }
         }
+
+        [Browsable(true)]
+        [Category("FastGeneral")]
+        [Description("Enable vertical scroll.")]
+        public bool EnableVerticalScroll
+        {
+            get => textBox.ScrollBars == ScrollBars.Vertical;
+            set
+            {
+                if (value)
+                {
+                    textBox.Multiline = true;
+                    textBox.ScrollBars = ScrollBars.Vertical;
+                }
+                else
+                {
+                    textBox.Multiline = false;
+                    textBox.ScrollBars = ScrollBars.None;
+                }
+            }
+        }
+
 
         [Browsable(true)]
         [Category("FastGeneral")]
@@ -99,7 +120,7 @@ namespace FastUI.Controls.Input
                 textBox.Height = value;
             }
         }
-        
+
 
 
         [Browsable(true)]
@@ -174,13 +195,14 @@ namespace FastUI.Controls.Input
         public float FontSize
         {
             get => textBox.Font.Size;
-            set 
-            { 
+            set
+            {
                 textBox.Font = new Font(textBox.Font.FontFamily, value);
-                // iNSURE THAT THE SIZE CHANGE DOES NOT EFFECT THE CONTROL SIZE
+
+                // Ensure font-size changes do NOT alter the control's dimensions.
                 textBox.Height = this.Height;
                 textBox.Width = this.Width;
-            } 
+            }
         }
 
         [Browsable(true)]
@@ -216,6 +238,15 @@ namespace FastUI.Controls.Input
 
         [Browsable(true)]
         [Category("FastInteraction")]
+        [Description("Text color when the mouse is hovering over the field.")]
+        public Color HoverTextColor
+        {
+            get => textBox.HoverState.ForeColor;
+            set => textBox.HoverState.ForeColor = value;
+        }
+
+        [Browsable(true)]
+        [Category("FastInteraction")]
         [Description("Border color when the mouse is hovering over the field.")]
         public Color HoverBorderColor
         {
@@ -234,6 +265,15 @@ namespace FastUI.Controls.Input
 
         [Browsable(true)]
         [Category("FastInteraction")]
+        [Description("Text color when the field is focused.")]
+        public Color FocusTextColor
+        {
+            get => textBox.FocusedState.ForeColor;
+            set => textBox.FocusedState.ForeColor = value;
+        }
+
+        [Browsable(true)]
+        [Category("FastInteraction")]
         [Description("Border color when the field is focused.")]
         public Color FocusBorderColor
         {
@@ -248,14 +288,11 @@ namespace FastUI.Controls.Input
         //  INTERNAL EVENTS
         // =====================================================================
 
-        // This event ensures the inner textBox always matches 
-        // the UserControl's size when the control is resized.
         private void FastTextBox_SizeChanged(object sender, EventArgs e)
         {
             textBox.Width = this.Width;
             textBox.Height = this.Height;
         }
-
 
         // Removes the placeholder on first click so the user
         // can start typing immediately.
@@ -285,10 +322,7 @@ namespace FastUI.Controls.Input
                 textBox.BorderColor = Color.Red;
             // 4) Valid → restore original border color
             else
-                textBox.BorderColor = _defaultBorderColor; 
-
-            // 5) Change focus
-            fakeFocus.Focus();
+                textBox.BorderColor = _defaultBorderColor;
         }
         private void textBox_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -300,3 +334,4 @@ namespace FastUI.Controls.Input
 
     }
 }
+

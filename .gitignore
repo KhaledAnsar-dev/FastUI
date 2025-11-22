@@ -1,0 +1,33 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+*.snk
+project.lock.json
+
+# Cache
+.vs/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Publish output
+publish/
+
+# Others
+*.dbmdl
+*.jfm
+_ReSharper*/

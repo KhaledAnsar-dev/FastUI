@@ -13,8 +13,5 @@
     <Compile Update="Controls\Selection\FastComboBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UserControl1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Folder Include="Controls\Display\" />
-    <Folder Include="Helpers\" />
   </ItemGroup>
 
   <ItemGroup>

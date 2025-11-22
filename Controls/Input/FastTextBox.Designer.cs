@@ -63,6 +63,7 @@
             textBox.TabIndex = 8;
             textBox.TextOffset = new Point(5, 0);
             textBox.Click += textBox_Click;
+            textBox.KeyPress += textBox_KeyPress;
             textBox.MouseLeave += textBox_MouseLeave;
             // 
             // fakeFocus

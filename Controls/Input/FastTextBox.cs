@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FastUI.Helpers;
+using FastUI.Helpers.Input;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,7 +17,14 @@ namespace FastUI.Controls.Input
         public FastTextBox()
         {
             InitializeComponent();
+
         }
+
+        // Stores the original border color selected by the user or designer.
+        // Used to restore the normal styling after showing validation errors.
+        private Color _defaultBorderColor;
+        private FastInputType _inputType = FastInputType.Text;
+
         // ----------------------------------------------------------
         // FAST GENERAL
         // ----------------------------------------------------------
@@ -90,7 +99,22 @@ namespace FastUI.Controls.Input
                 textBox.Height = value;
             }
         }
+        
 
+
+        [Browsable(true)]
+        [Category("FastGeneral")]
+        [Description("Defines the type of data allowed in this input.")]
+        public FastInputType InputType
+        {
+            get => _inputType;
+            set
+            {
+                _inputType = value;
+
+                textBox.PlaceholderText = FastInputValidator.GetPlaceholder(value);
+            }
+        }
 
 
         // ----------------------------------------------------------
@@ -124,13 +148,18 @@ namespace FastUI.Controls.Input
             set => textBox.BorderThickness = value;
         }
 
+
         [Browsable(true)]
         [Category("FastStyle")]
         [Description("Color of the field border.")]
         public Color BorderColor
         {
             get => textBox.BorderColor;
-            set => textBox.BorderColor = value;
+            set
+            {
+                textBox.BorderColor = value;
+                _defaultBorderColor = textBox.BorderColor; // store original color
+            }
         }
 
 
@@ -145,7 +174,13 @@ namespace FastUI.Controls.Input
         public float FontSize
         {
             get => textBox.Font.Size;
-            set => textBox.Font = new Font(textBox.Font.FontFamily, value);
+            set 
+            { 
+                textBox.Font = new Font(textBox.Font.FontFamily, value);
+                // iNSURE THAT THE SIZE CHANGE DOES NOT EFFECT THE CONTROL SIZE
+                textBox.Height = this.Height;
+                textBox.Width = this.Width;
+            } 
         }
 
         [Browsable(true)]
@@ -206,6 +241,9 @@ namespace FastUI.Controls.Input
             set => textBox.FocusedState.BorderColor = value;
         }
 
+
+
+
         // =====================================================================
         //  INTERNAL EVENTS
         // =====================================================================
@@ -221,25 +259,44 @@ namespace FastUI.Controls.Input
 
         // Removes the placeholder on first click so the user
         // can start typing immediately.
-
-        private string _placeHolderText = string.Empty;
         private void textBox_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(textBox.PlaceholderText))
-                _placeHolderText = textBox.PlaceholderText;
-
             textBox.PlaceholderText = string.Empty;
         }
 
-        // Restores the placeholder when leaving the field if no text was entered.
+        // Restores placeholder and applies validation rules when leaving the field.
         private void textBox_MouseLeave(object sender, EventArgs e)
         {
-            if (textBox.Text == string.Empty)
-                textBox.PlaceholderText = _placeHolderText;
+            // 1) Empty → reset placeholder and restore normal border
+            if (string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                textBox.Text = "";
+                textBox.PlaceholderText = FastInputValidator.GetPlaceholder(_inputType);
+                fakeFocus.Focus();
+                return;
+            }
 
+            // 2) Validate content based on input type
+            bool valid = FastInputValidator.IsValid(_inputType, textBox.Text);
+
+
+            // 3) Invalid → show error border
+            if (!valid)
+                textBox.BorderColor = Color.Red;
+            // 4) Valid → restore original border color
+            else
+                textBox.BorderColor = _defaultBorderColor; 
+
+            // 5) Change focus
             fakeFocus.Focus();
         }
+        private void textBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            bool allowed = FastInputValidator.IsKeyAllowed(_inputType, e, textBox.Text);
 
+            if (!allowed)
+                e.Handled = true;
+        }
 
     }
 }

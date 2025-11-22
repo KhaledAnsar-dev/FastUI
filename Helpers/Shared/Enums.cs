@@ -1,9 +1,10 @@
 ﻿namespace FastUI.Enums
 {
-    public enum FastTextPosition
+    public enum FastPosition
     {
         Left,
         Center,
         Right
     }
+    
 }

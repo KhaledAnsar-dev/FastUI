@@ -15,19 +15,29 @@ namespace FastUI.Controls.Input
 {
     public partial class FastTextBox : UserControl
     {
-        public FastTextBox()
-        {
-            InitializeComponent();
+        // =====================================================================
+        //  Fields
+        // =====================================================================
 
-        }
         // Stores the original border color selected by the user or designer.
         // Used to restore the normal styling after showing validation errors.
         private Color _defaultBorderColor;
         private FastInputType _inputType = FastInputType.Text;
 
-        // ----------------------------------------------------------
-        // FAST GENERAL
-        // ----------------------------------------------------------
+        // =====================================================================
+        //  Constructors
+        // =====================================================================
+        public FastTextBox()
+        {
+            InitializeComponent();
+
+        }
+
+        // =====================================================================
+        //  Public Properties
+        // =====================================================================
+
+        #region Fast General
 
         [Browsable(true)]
         [Category("FastGeneral")]
@@ -138,10 +148,11 @@ namespace FastUI.Controls.Input
             }
         }
 
+        #endregion
 
-        // ----------------------------------------------------------
-        // FAST STYLE
-        // ----------------------------------------------------------
+        // ---------------------------------------------------------------------
+
+        #region Fast Style
 
         [Browsable(true)]
         [Category("FastStyle")]
@@ -185,10 +196,11 @@ namespace FastUI.Controls.Input
         }
 
 
+        #endregion
 
-        // ----------------------------------------------------------
-        // FAST TEXT
-        // ----------------------------------------------------------
+        // ---------------------------------------------------------------------
+
+        #region Fast Text
 
         [Browsable(true)]
         [Category("FastText")]
@@ -223,11 +235,66 @@ namespace FastUI.Controls.Input
             get => textBox.Font;
             set => textBox.Font = value;
         }
-        
-   
-        // ----------------------------------------------------------
-        // FAST INTERACTION
-        // ----------------------------------------------------------
+
+
+        [Browsable(true)]
+        [Category("FastText")]
+        [Description("Moves the displayed text horizontally inside the textbox.")]
+        public int MoveTextHorizontal
+        {
+            get => textBox.TextOffset.X;
+            set
+            {
+                textBox.TextOffset = new Point(value, textBox.TextOffset.Y);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastText")]
+        [Description("Moves the displayed text vertically inside the textbox.")]
+        public int MoveTextVertical
+        {
+            // The framework interprets vertical offset in the opposite direction,
+            // so we invert the value to match what the user naturally expects.
+            get => -textBox.TextOffset.Y;
+            set
+            {
+                int correctedValue = -value;
+                textBox.TextOffset = new Point(textBox.TextOffset.X, correctedValue);
+            }
+        }
+
+
+        [Browsable(true)]
+        [Category("FastText")]
+        [Description("Defines the text alignment inside the control.")]
+        public FastPosition TextPosition
+        {
+            get
+            {
+                return textBox.TextAlign switch
+                {
+                    HorizontalAlignment.Center => FastPosition.Center,
+                    HorizontalAlignment.Right => FastPosition.Right,
+                    _ => FastPosition.Left
+                };
+            }
+            set
+            {
+                textBox.TextAlign = value switch
+                {
+                    FastPosition.Center => HorizontalAlignment.Center,
+                    FastPosition.Right => HorizontalAlignment.Right,
+                    _ => HorizontalAlignment.Left
+                };
+            }
+        }
+
+        #endregion
+
+        // ---------------------------------------------------------------------
+
+        #region Fast Interaction
 
         [Browsable(true)]
         [Category("FastInteraction")]
@@ -282,9 +349,7 @@ namespace FastUI.Controls.Input
             get => textBox.FocusedState.BorderColor;
             set => textBox.FocusedState.BorderColor = value;
         }
-
-
-
+        #endregion
 
         // =====================================================================
         //  INTERNAL EVENTS
@@ -327,7 +392,7 @@ namespace FastUI.Controls.Input
             if (!allowed)
                 e.Handled = true;
         }
-
     }
 }
+
 

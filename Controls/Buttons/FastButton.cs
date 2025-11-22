@@ -13,13 +13,19 @@ namespace FastUI.Controls.Buttons
 {
     public partial class FastButton : UserControl
     {
+        // =====================================================================
+        //  Constructors
+        // =====================================================================
         public FastButton()
         {
             InitializeComponent();
         }
-        // ----------------------------------------------------------
-        // FAST GENERAL
-        // ----------------------------------------------------------
+
+        // =====================================================================
+        //  Public Properties
+        // =====================================================================
+
+        #region Fast General
 
         [Browsable(true)]
         [Category("FastGeneral")]
@@ -57,10 +63,11 @@ namespace FastUI.Controls.Buttons
             }
         }
 
+        #endregion
 
-        // ----------------------------------------------------------
-        // FAST STYLE
-        // ----------------------------------------------------------
+        // ---------------------------------------------------------------------
+
+        #region Fast Style
 
         [Browsable(true)]
         [Category("FastStyle")]
@@ -102,9 +109,11 @@ namespace FastUI.Controls.Buttons
         }
 
 
-        // ----------------------------------------------------------
-        // FAST TEXT
-        // ----------------------------------------------------------
+        #endregion
+
+        // ---------------------------------------------------------------------
+
+        #region Fast Text
 
         [Browsable(true)]
         [Category("FastText")]
@@ -192,9 +201,11 @@ namespace FastUI.Controls.Buttons
             }
         }
 
-        // ----------------------------------------------------------
-        // FAST INTERACTION
-        // ----------------------------------------------------------
+        #endregion
+
+        // ---------------------------------------------------------------------
+
+        #region Fast Interaction
 
         [Browsable(true)]
         [Category("FastInteraction")]
@@ -222,10 +233,11 @@ namespace FastUI.Controls.Buttons
             get => button.HoverState.BorderColor;
             set => button.HoverState.BorderColor = value;
         }
+        #endregion
 
-        // ----------------------------------------------------------
-        // FAST IMAGE
-        // ----------------------------------------------------------
+        // ---------------------------------------------------------------------
+
+        #region Fast Image
 
         [Browsable(true)]
         [Category("FastImage")]
@@ -302,6 +314,6 @@ namespace FastUI.Controls.Buttons
             get => button.ImageSize.Height;
             set => button.ImageSize = new Size(button.ImageSize.Width, value);
         }
-
+        #endregion
     }
 }

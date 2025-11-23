@@ -1,4 +1,4 @@
-﻿using FastUI.Enums;
+﻿using FastUI.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastUI.Controls.Buttons
+namespace FastUI.Modules.Buttons.Button
 {
     public partial class FastButton : UserControl
     {
@@ -179,23 +179,23 @@ namespace FastUI.Controls.Buttons
         [Browsable(true)]
         [Category("FastText")]
         [Description("Defines the text alignment inside the button.")]
-        public FastPosition TextPosition
+        public FastEnumPosition TextPosition
         {
             get
             {
                 return button.TextAlign switch
                 {
-                    HorizontalAlignment.Center => FastPosition.Center,
-                    HorizontalAlignment.Right => FastPosition.Right,
-                    _ => FastPosition.Left
+                    HorizontalAlignment.Center => FastEnumPosition.Center,
+                    HorizontalAlignment.Right => FastEnumPosition.Right,
+                    _ => FastEnumPosition.Left
                 };
             }
             set
             {
                 button.TextAlign = value switch
                 {
-                    FastPosition.Center => HorizontalAlignment.Center,
-                    FastPosition.Right => HorizontalAlignment.Right,
+                    FastEnumPosition.Center => HorizontalAlignment.Center,
+                    FastEnumPosition.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left
                 };
             }
@@ -246,30 +246,30 @@ namespace FastUI.Controls.Buttons
         {
             get => button.Image;
             set => button.Image = value;
-            
+
         }
 
         [Browsable(true)]
         [Category("FastImage")]
         [Description("Defines the horizontal position of the button image.")]
-        public FastPosition ImagePosition
+        public FastEnumPosition ImagePosition
         {
             get
             {
                 return button.ImageAlign switch
                 {
-                    
-                    HorizontalAlignment.Center => FastPosition.Center,
-                    HorizontalAlignment.Right => FastPosition.Right,
-                    _ => FastPosition.Left
+
+                    HorizontalAlignment.Center => FastEnumPosition.Center,
+                    HorizontalAlignment.Right => FastEnumPosition.Right,
+                    _ => FastEnumPosition.Left
                 };
             }
             set
             {
                 button.ImageAlign = value switch
                 {
-                    FastPosition.Center => HorizontalAlignment.Center,
-                    FastPosition.Right => HorizontalAlignment.Right,
+                    FastEnumPosition.Center => HorizontalAlignment.Center,
+                    FastEnumPosition.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left
                 };
             }

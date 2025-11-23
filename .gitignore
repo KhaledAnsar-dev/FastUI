@@ -1,33 +1,43 @@
-# Build folders
+# ----------------------------
+# Build output
+# ----------------------------
 bin/
 obj/
+publish/
 
-# Visual Studio files
-*.user
+# ----------------------------
+# Visual Studio
+# ----------------------------
+.vs/
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
 
+# ----------------------------
 # NuGet
-*.nupkg
+# ----------------------------
 packages/
-*.snk
+*.nupkg
 project.lock.json
+*.snk     # strong name keys (optional)
 
-# Cache
-.vs/
-
-# Logs
+# ----------------------------
+# Logs & Cache
+# ----------------------------
 *.log
-
-# Temporary files
 *.tmp
 *.temp
 
-# Publish output
-publish/
-
-# Others
-*.dbmdl
-*.jfm
+# ----------------------------
+# Rider / ReSharper
+# ----------------------------
 _ReSharper*/
+*.DotSettings.user
+
+# ----------------------------
+# Other
+# ----------------------------
+*.jfm
+*.dbmdl   # (sql developer db model — optional to keep ignored)
+

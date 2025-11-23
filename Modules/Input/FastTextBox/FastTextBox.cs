@@ -1,6 +1,5 @@
-﻿using FastUI.Enums;
-using FastUI.Helpers;
-using FastUI.Helpers.Input;
+﻿using FastUI.Core;
+using FastUI.Modules.Input.TextBox.Support;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastUI.Controls.Input
+namespace FastUI.Modules.Input.TextBox
 {
     public partial class FastTextBox : UserControl
     {
@@ -22,7 +21,7 @@ namespace FastUI.Controls.Input
         // Stores the original border color selected by the user or designer.
         // Used to restore the normal styling after showing validation errors.
         private Color _defaultBorderColor;
-        private FastInputType _inputType = FastInputType.Text;
+        private FastEnumInputType _inputType = FastEnumInputType.Text;
 
         // =====================================================================
         //  Constructors
@@ -137,14 +136,14 @@ namespace FastUI.Controls.Input
         [Browsable(true)]
         [Category("FastGeneral")]
         [Description("Defines the type of data allowed in this input.")]
-        public FastInputType InputType
+        public FastEnumInputType InputType
         {
             get => _inputType;
             set
             {
                 _inputType = value;
 
-                textBox.PlaceholderText = FastInputValidator.GetPlaceholder(value);
+                textBox.PlaceholderText = FastUtilsTextBox.GetPlaceholder(value);
             }
         }
 
@@ -268,23 +267,23 @@ namespace FastUI.Controls.Input
         [Browsable(true)]
         [Category("FastText")]
         [Description("Defines the text alignment inside the control.")]
-        public FastPosition TextPosition
+        public FastEnumPosition TextPosition
         {
             get
             {
                 return textBox.TextAlign switch
                 {
-                    HorizontalAlignment.Center => FastPosition.Center,
-                    HorizontalAlignment.Right => FastPosition.Right,
-                    _ => FastPosition.Left
+                    HorizontalAlignment.Center => FastEnumPosition.Center,
+                    HorizontalAlignment.Right => FastEnumPosition.Right,
+                    _ => FastEnumPosition.Left
                 };
             }
             set
             {
                 textBox.TextAlign = value switch
                 {
-                    FastPosition.Center => HorizontalAlignment.Center,
-                    FastPosition.Right => HorizontalAlignment.Right,
+                    FastEnumPosition.Center => HorizontalAlignment.Center,
+                    FastEnumPosition.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left
                 };
             }
@@ -369,13 +368,13 @@ namespace FastUI.Controls.Input
             if (string.IsNullOrWhiteSpace(textBox.Text))
             {
                 textBox.Text = "";
-                textBox.PlaceholderText = FastInputValidator.GetPlaceholder(_inputType);
+                textBox.PlaceholderText = FastUtilsTextBox.GetPlaceholder(_inputType);
                 fakeFocus.Focus();
                 return;
             }
-
+            
             // 2) Validate content based on input type
-            bool valid = FastInputValidator.IsValid(_inputType, textBox.Text);
+            bool valid = FastValidation.IsValid(_inputType, textBox.Text);
 
 
             // 3) Invalid → show error border
@@ -384,15 +383,16 @@ namespace FastUI.Controls.Input
             // 4) Valid → restore original border color
             else
                 textBox.BorderColor = _defaultBorderColor;
+
+            fakeFocus.Focus();
+
         }
         private void textBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            bool allowed = FastInputValidator.IsKeyAllowed(_inputType, e, textBox.Text);
+            bool allowed = FastValidation.IsKeyAllowed(_inputType, e, textBox.Text);
 
             if (!allowed)
                 e.Handled = true;
         }
     }
 }
-
-

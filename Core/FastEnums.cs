@@ -4,9 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FastUI.Helpers
+namespace FastUI.Core
 {
-    public enum FastInputType
+    public enum FastEnumPosition
+    {
+        Left,
+        Center,
+        Right
+    }
+    public enum FastEnumInputType
     {
         Text,
         Email,

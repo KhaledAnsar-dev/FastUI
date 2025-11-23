@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastUI.Controls.Selection
+namespace FastUI.Modules.Buttons.IconButton
 {
-    public partial class FastComboBox : UserControl
+    public partial class FastIconButton : UserControl
     {
-        public FastComboBox()
+        public FastIconButton()
         {
             InitializeComponent();
         }

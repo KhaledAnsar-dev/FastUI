@@ -1,4 +1,4 @@
-﻿namespace FastUI.Controls.Input
+﻿namespace FastUI.Modules.Input.TextBox
 {
     partial class FastTextBox
     {
@@ -61,10 +61,9 @@
             textBox.SelectedText = "";
             textBox.ShadowDecoration.CustomizableEdges = customizableEdges2;
             textBox.Size = new Size(141, 34);
-            textBox.TabIndex = 8;
+            textBox.TabIndex = 9;
             textBox.TextOffset = new Point(5, 0);
             textBox.Click += textBox_Click;
-            textBox.KeyPress += textBox_KeyPress;
             textBox.MouseLeave += textBox_MouseLeave;
             // 
             // fakeFocus
@@ -74,7 +73,7 @@
             fakeFocus.Name = "fakeFocus";
             fakeFocus.ShadowDecoration.CustomizableEdges = customizableEdges4;
             fakeFocus.Size = new Size(1, 1);
-            fakeFocus.TabIndex = 9;
+            fakeFocus.TabIndex = 10;
             // 
             // FastTextBox
             // 

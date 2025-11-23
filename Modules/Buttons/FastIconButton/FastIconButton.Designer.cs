@@ -1,6 +1,6 @@
-﻿namespace FastUI.Controls.Selection
+﻿namespace FastUI.Modules.Buttons.IconButton
 {
-    partial class FastComboBox
+    partial class FastIconButton
     {
         /// <summary> 
         /// Required designer variable.

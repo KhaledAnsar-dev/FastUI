@@ -1,42 +1,32 @@
-﻿using System;
+﻿using FastUI.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Mail;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace FastUI.Helpers.Input
+namespace FastUI.Core
 {
-    public static class FastInputValidator
+    public static class FastValidation
     {
-        // --------------------------------------------------------------
-        // GET PLACEHOLDER BASED ON INPUT TYPE
-        // --------------------------------------------------------------
-        public static string GetPlaceholder(FastInputType type)
-        {
-            return type switch
-            {
-                FastInputType.Email => "example@mail.com",
-                FastInputType.PhoneDZ => "0XXXXXXXXX",
-                FastInputType.Integer => "0",
-                FastInputType.Decimal => "0,00",
-                _ => "Text"
-            };
-        }
+      
 
-
+        
         // --------------------------------------------------------------
         // VALIDATE KEYPRESS (RESTRICTIONS)
         // --------------------------------------------------------------
-        public static bool IsKeyAllowed(FastInputType type, KeyPressEventArgs e, string currentText)
+        public static bool IsKeyAllowed(FastEnumInputType type, KeyPressEventArgs e, string currentText)
         {
             switch (type)
             {
-                case FastInputType.Integer:
+                case FastEnumInputType.Integer:
                     if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
                         return false;
                     break;
 
 
-                case FastInputType.Decimal:
+                case FastEnumInputType.Decimal:
                     if (!char.IsDigit(e.KeyChar) &&
                         e.KeyChar != ',' &&
                         e.KeyChar != (char)Keys.Back)
@@ -47,7 +37,7 @@ namespace FastUI.Helpers.Input
                     break;
 
 
-                case FastInputType.PhoneDZ:
+                case FastEnumInputType.PhoneDZ:
                     if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
                         return false;
 
@@ -63,13 +53,13 @@ namespace FastUI.Helpers.Input
         // --------------------------------------------------------------
         // FINAL VALIDATION ON LEAVE
         // --------------------------------------------------------------
-        public static bool IsValid(FastInputType type, string text)
+        public static bool IsValid(FastEnumInputType type, string text)
         {
 
             return type switch
             {
-                FastInputType.Email => IsValidEmail(text),
-                FastInputType.PhoneDZ => IsValidDZPhone(text),
+                FastEnumInputType.Email => IsValidEmail(text),
+                FastEnumInputType.PhoneDZ => IsValidDZPhone(text),
                 _ => true
             };
         }

@@ -1,5 +1,5 @@
 ﻿using FastUI.Core;
-using FastUI.Modules.Input.TextBox.Support;
+using FastUI.Modules.Input.FastTextBoxUI.Support;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastUI.Modules.Input.TextBox
+namespace FastUI.Modules.Input.FastTextBoxUI
 {
     public partial class FastTextBox : UserControl
     {
@@ -372,7 +372,7 @@ namespace FastUI.Modules.Input.TextBox
                 fakeFocus.Focus();
                 return;
             }
-            
+
             // 2) Validate content based on input type
             bool valid = FastValidation.IsValid(_inputType, textBox.Text);
 
@@ -394,5 +394,24 @@ namespace FastUI.Modules.Input.TextBox
             if (!allowed)
                 e.Handled = true;
         }
+
+
+        // property for delete
+
+        private FastEnumStyle _savedStyle = FastEnumStyle.normal;
+        [Browsable(true)]
+        [Category("FastForDelete")]
+        public FastEnumStyle SetStyle
+        {
+            get => _savedStyle; set
+            {
+                if (value == FastEnumStyle.Windows11)
+                {
+                    _savedStyle = value;
+                    FastUtilsTextBox.ChangeStyle(this);
+                }
+            }
+        }
     }
+
 }

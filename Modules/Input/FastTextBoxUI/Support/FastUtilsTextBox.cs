@@ -1,11 +1,12 @@
 ﻿using FastUI.Core;
+using FastUI.Styles.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FastUI.Modules.Input.TextBox.Support
+namespace FastUI.Modules.Input.FastTextBoxUI.Support
 {
     public static class FastUtilsTextBox
     {
@@ -23,5 +24,12 @@ namespace FastUI.Modules.Input.TextBox.Support
                 _ => "Text"
             };
         }
+
+
+        public static void ChangeStyle(FastTextBox fastTextBox)
+        {
+            FastStyles.Windows11.Apply(fastTextBox);
+        }
     }
+
 }

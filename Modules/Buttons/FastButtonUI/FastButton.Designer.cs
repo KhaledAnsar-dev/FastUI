@@ -1,4 +1,4 @@
-﻿namespace FastUI.Modules.Buttons.Button
+﻿namespace FastUI.Modules.Buttons.FastButtonUI
 {
     partial class FastButton
     {
@@ -51,7 +51,7 @@
             button.Name = "button";
             button.ShadowDecoration.CustomizableEdges = customizableEdges2;
             button.Size = new Size(94, 34);
-            button.TabIndex = 4;
+            button.TabIndex = 5;
             button.Text = "Valider";
             button.TextOffset = new Point(0, -1);
             // 

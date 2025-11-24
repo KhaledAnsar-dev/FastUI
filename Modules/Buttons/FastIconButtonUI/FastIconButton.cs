@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastUI.Modules.Buttons.IconButton
+namespace FastUI.Modules.Buttons.FastIconButtonUI
 {
     public partial class FastIconButton : UserControl
     {

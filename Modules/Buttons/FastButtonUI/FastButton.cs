@@ -1,4 +1,5 @@
 ﻿using FastUI.Core;
+using FastUI.Modules.Buttons.FastButtonUI.Support;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FastUI.Modules.Buttons.Button
+
+namespace FastUI.Modules.Buttons.FastButtonUI
 {
     public partial class FastButton : UserControl
     {
@@ -315,5 +317,23 @@ namespace FastUI.Modules.Buttons.Button
             set => button.ImageSize = new Size(button.ImageSize.Width, value);
         }
         #endregion
+
+
+
+        private FastEnumStyle _savedStyle = FastEnumStyle.normal;
+        [Browsable(true)]
+        [Category("FastForDelete")]
+        public FastEnumStyle SetStyle
+        {
+            get => _savedStyle; set
+            {
+                if (value == FastEnumStyle.Windows11)
+                {
+                    _savedStyle = value;
+                    FastUtilsButton.ChangeStyle(this);
+                }
+            }
+        }
     }
+
 }

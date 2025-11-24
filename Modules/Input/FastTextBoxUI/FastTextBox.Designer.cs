@@ -1,4 +1,4 @@
-﻿namespace FastUI.Modules.Input.TextBox
+﻿namespace FastUI.Modules.Input.FastTextBoxUI
 {
     partial class FastTextBox
     {
@@ -32,16 +32,25 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            textBox = new Guna.UI2.WinForms.Guna2TextBox();
             fakeFocus = new Guna.UI2.WinForms.Guna2CustomGradientPanel();
+            textBox = new Guna.UI2.WinForms.Guna2TextBox();
             SuspendLayout();
+            // 
+            // fakeFocus
+            // 
+            fakeFocus.CustomizableEdges = customizableEdges1;
+            fakeFocus.Location = new Point(10, 10);
+            fakeFocus.Name = "fakeFocus";
+            fakeFocus.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            fakeFocus.Size = new Size(1, 1);
+            fakeFocus.TabIndex = 11;
             // 
             // textBox
             // 
             textBox.BackColor = Color.Transparent;
             textBox.BorderColor = Color.FromArgb(218, 221, 221);
             textBox.BorderRadius = 16;
-            textBox.CustomizableEdges = customizableEdges1;
+            textBox.CustomizableEdges = customizableEdges3;
             textBox.DefaultText = "";
             textBox.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
             textBox.DisabledState.FillColor = Color.FromArgb(226, 226, 226);
@@ -59,21 +68,13 @@
             textBox.PlaceholderForeColor = Color.FromArgb(183, 183, 184);
             textBox.PlaceholderText = "Input";
             textBox.SelectedText = "";
-            textBox.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            textBox.ShadowDecoration.CustomizableEdges = customizableEdges4;
             textBox.Size = new Size(141, 34);
-            textBox.TabIndex = 9;
+            textBox.TabIndex = 12;
             textBox.TextOffset = new Point(5, 0);
             textBox.Click += textBox_Click;
+            textBox.KeyPress += textBox_KeyPress;
             textBox.MouseLeave += textBox_MouseLeave;
-            // 
-            // fakeFocus
-            // 
-            fakeFocus.CustomizableEdges = customizableEdges3;
-            fakeFocus.Location = new Point(10, 10);
-            fakeFocus.Name = "fakeFocus";
-            fakeFocus.ShadowDecoration.CustomizableEdges = customizableEdges4;
-            fakeFocus.Size = new Size(1, 1);
-            fakeFocus.TabIndex = 10;
             // 
             // FastTextBox
             // 
@@ -88,7 +89,7 @@
 
         #endregion
 
-        private Guna.UI2.WinForms.Guna2TextBox textBox;
         private Guna.UI2.WinForms.Guna2CustomGradientPanel fakeFocus;
+        private Guna.UI2.WinForms.Guna2TextBox textBox;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace FastUI.Modules.Buttons.IconButton
+﻿namespace FastUI.Modules.Buttons.FastIconButtonUI
 {
     partial class FastIconButton
     {

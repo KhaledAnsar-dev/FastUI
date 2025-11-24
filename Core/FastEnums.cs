@@ -20,4 +20,6 @@ namespace FastUI.Core
         Integer,
         Decimal
     }
+    public enum FastEnumStyle { normal, Windows11 };
+
 }

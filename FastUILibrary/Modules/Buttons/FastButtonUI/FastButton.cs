@@ -1,5 +1,5 @@
-﻿using FastUI.Core;
-using FastUI.Modules.Buttons.FastButtonUI.Support;
+﻿using FastUI.FastUILibrary.Core;
+using FastUI.FastUILibrary.Modules.Buttons.FastButtonUI.Support;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

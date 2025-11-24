@@ -1,13 +1,13 @@
 ﻿using FastUI.Modules.Input.FastTextBoxUI;
 using FastUI.Modules.Buttons.FastButtonUI;
-using FastUI.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FastUI.FastUILibrary.Core;
 
-namespace FastUI.Styles.Core
+namespace FastUI.FastUILibrary.Styles.Core
 {
     public static class FastStyles
     {

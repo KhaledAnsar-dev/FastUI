@@ -1,4 +1,5 @@
-﻿using FastUI.Styles.Core;
+﻿using FastUI.FastUILibrary.Styles.Core;
+using FastUI.Modules.Buttons.FastButtonUI;
 
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FastUI.Modules.Buttons.FastButtonUI.Support
+namespace FastUI.FastUILibrary.Modules.Buttons.FastButtonUI.Support
 {
     public static class FastUtilsButton
     {

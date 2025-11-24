@@ -1,5 +1,5 @@
-﻿using FastUI.Core;
-using FastUI.Modules.Input.FastTextBoxUI.Support;
+﻿using FastUI.FastUILibrary.Core;
+using FastUI.FastUILibrary.Modules.Input.FastTextBoxUI.Support;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

@@ -1,12 +1,13 @@
-﻿using FastUI.Core;
-using FastUI.Styles.Core;
+﻿using FastUI.FastUILibrary.Core;
+using FastUI.FastUILibrary.Styles.Core;
+using FastUI.Modules.Input.FastTextBoxUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FastUI.Modules.Input.FastTextBoxUI.Support
+namespace FastUI.FastUILibrary.Modules.Input.FastTextBoxUI.Support
 {
     public static class FastUtilsTextBox
     {

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Compile Update="Modules\Buttons\FastButtonUI\FastButton.cs">
+    <Compile Update="FastUILibrary\Modules\Buttons\FastButtonUI\FastButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Modules\Buttons\FastIconButtonUI\FastIconButton.cs">
+    <Compile Update="FastUILibrary\Modules\Buttons\FastIconButtonUI\FastIconButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Modules\Input\FastTextBoxUI\FastTextBox.cs">
+    <Compile Update="FastUILibrary\Modules\Input\FastTextBoxUI\FastTextBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>

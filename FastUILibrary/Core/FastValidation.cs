@@ -1,18 +1,17 @@
-﻿using FastUI.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FastUI.Core
+namespace FastUI.FastUILibrary.Core
 {
     public static class FastValidation
     {
-      
 
-        
+
+
         // --------------------------------------------------------------
         // VALIDATE KEYPRESS (RESTRICTIONS)
         // --------------------------------------------------------------

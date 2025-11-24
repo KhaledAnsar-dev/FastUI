@@ -8,14 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\Buttons\FastIconButtonUI\Support\" />
-    <Folder Include="Modules\Buttons\ModuleSupport\" />
-    <Folder Include="Modules\Display\" />
-    <Folder Include="Modules\Input\ModuleSupport\" />
-    <Folder Include="Modules\Selection\" />
-    <Folder Include="Styles\Modern\" />
-    <Folder Include="Styles\Classic\" />
-    <Folder Include="Styles\Custom\" />
+    <Folder Include="FastUILibrary\Modules\Buttons\FastIconButtonUI\Support\" />
+    <Folder Include="FastUILibrary\Modules\Buttons\ModuleSupport\" />
+    <Folder Include="FastUILibrary\Modules\Display\" />
+    <Folder Include="FastUILibrary\Modules\Input\ModuleSupport\" />
+    <Folder Include="FastUILibrary\Modules\Selection\" />
+    <Folder Include="FastUILibrary\Styles\Modern\" />
+    <Folder Include="FastUILibrary\Styles\Classic\" />
+    <Folder Include="FastUILibrary\Styles\Custom\" />
   </ItemGroup>
 
   <ItemGroup>

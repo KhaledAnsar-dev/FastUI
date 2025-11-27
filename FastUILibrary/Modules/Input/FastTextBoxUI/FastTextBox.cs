@@ -25,14 +25,8 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         private FastEnumInputType _inputType = FastEnumInputType.Text;
 
 
-        // Preserve original user-defined size
-        private Size _originalSize;
-
-        // Shadow values (kept for layout recalculation)
-        private int _shadowTop = 0;
-        private int _shadowBottom = 0;
-        private int _shadowLeft = 0;
-        private int _shadowRight = 0;
+        private FastShadowSettings _shadowSettings;
+        
 
 
         // =====================================================================
@@ -43,7 +37,8 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             InitializeComponent();
 
             // Save initial size as the base size for shadow operations
-            _originalSize = new Size(this.Width, this.Height);
+            Size currentSize = new Size(this.Width, this.Height);
+            _shadowSettings = new FastShadowSettings(currentSize);
 
             // Reset Guna default shadow values to zero
             var s = textBox.ShadowDecoration.Shadow;
@@ -383,28 +378,28 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         {
             // --- 1) Reset inner control size before applying new shadow settings ---
             // Ensures the TextBox always returns to its base/original dimensions.
-            textBox.Size = _originalSize;
+            textBox.Size = _shadowSettings.OriginalSize;
 
             // --- 2) Apply shadow padding to the inner control ---
             // Guna2 shadow uses Padding (Left, Top, Right, Bottom).
             textBox.ShadowDecoration.Shadow = new Padding(
-                _shadowLeft, _shadowTop, _shadowRight, _shadowBottom
+                _shadowSettings.Left, _shadowSettings.Top, _shadowSettings.Right, _shadowSettings.Bottom
             );
 
             // --- 3) Move the inner control to reveal top/left shadow areas ---
             // The textbox is shifted by the shadow values so shadow appears outside.
 
 
-            int x = _shadowLeft;
-            int y = _shadowTop;
+            int x = _shadowSettings.Left;
+            int y = _shadowSettings.Top;
 
             textBox.Location = new Point(x, y);
 
 
             // --- 4) Resize the UserControl to include the entire shadow region ---
             // New size = original textbox size + shadow padding on all sides.
-            int width = _originalSize.Width + _shadowLeft + _shadowRight;
-            int height = _originalSize.Height + _shadowTop + _shadowBottom;
+            int width = _shadowSettings.OriginalSize.Width + _shadowSettings.Left + _shadowSettings.Right;
+            int height = _shadowSettings.OriginalSize.Height + _shadowSettings.Top + _shadowSettings.Bottom;
 
             // Temporarily detach SizeChanged to avoid recursive resizing loops.
             this.SizeChanged -= FastTextBox_SizeChanged;
@@ -494,7 +489,7 @@ namespace FastUI.Modules.Input.FastTextBoxUI
                 // the previuos values need to set to zeros to avaoid unxpected errors
                 if (textBox.ShadowDecoration.Enabled || value == 0)
                 {
-                    _shadowTop = value;
+                    _shadowSettings.Top = value;
                     ApplyShadowLayout();
                 }
             }
@@ -510,7 +505,7 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             {
                 if (textBox.ShadowDecoration.Enabled || value == 0)
                 {
-                    _shadowBottom = value;
+                    _shadowSettings.Bottom = value;
                     ApplyShadowLayout();
                 }
             }
@@ -526,7 +521,7 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             {
                 if (textBox.ShadowDecoration.Enabled || value == 0)
                 {
-                    _shadowLeft = value;
+                    _shadowSettings.Left = value;
                     ApplyShadowLayout();
                 }
             }
@@ -542,7 +537,7 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             {
                 if (textBox.ShadowDecoration.Enabled || value == 0)
                 {
-                    _shadowRight = value;
+                    _shadowSettings.Right = value;
                     ApplyShadowLayout();
                 }
             }
@@ -603,7 +598,7 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             // and we can stop this event when we need to change the container control 
             // size when adding shadow space which means the inner control will not chamge its size 
             // at this case
-            _originalSize = new Size(this.Width, this.Height);
+            _shadowSettings.OriginalSize = new Size(this.Width, this.Height);
 
             // when the shadow doesnt work the inner control and the container
             // control have the same size

@@ -1,5 +1,7 @@
 ﻿using FastUI.FastUILibrary.Core;
+using FastUI.FastUILibrary.Core.Interfaces;
 using FastUI.FastUILibrary.Core.Shadow;
+using FastUI.FastUILibrary.Core.Shadow.Adapters;
 using FastUI.FastUILibrary.Modules.Input.FastTextBoxUI.Support;
 using System;
 using System.Collections.Generic;
@@ -25,8 +27,9 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         private FastEnumInputType _inputType = FastEnumInputType.Text;
 
 
-        private FastShadowSettings _shadowSettings;
-        
+
+        private FastShadowEngine _shadowEngine;
+        private IFastShadowTarget _shadowAdapter;
 
 
         // =====================================================================
@@ -36,20 +39,12 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         {
             InitializeComponent();
 
-            // Save initial size as the base size for shadow operations
-            Size currentSize = new Size(this.Width, this.Height);
-            _shadowSettings = new FastShadowSettings(currentSize);
+            // 1) Create adapter for the inner Guna2TextBox
+            _shadowAdapter = new GunaShadowAdapter(textBox);
 
-            // Reset Guna default shadow values to zero
-            var s = textBox.ShadowDecoration.Shadow;
-            s.Top = 0;
-            s.Bottom = 0;
-            s.Right = 0;
-            s.Left = 0;
-            textBox.ShadowDecoration.Shadow = s;
-
-            // Reset Guna default shadow depth
-            textBox.ShadowDecoration.Depth = 5;
+            // 2) Create shadow engine to manage layout/size/shadow logic
+            _shadowEngine = new FastShadowEngine(this, _shadowAdapter);
+           
         }
 
         // =====================================================================
@@ -66,6 +61,16 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             get => textBox.Text;
             set => textBox.Text = value;
         }
+
+        [Browsable(true)]
+        [Category("FastGeneral")]
+        [Description("The color used to display the text entered by the user.")]
+        public Color ValueColor
+        {
+            get => textBox.ForeColor;
+            set => textBox.ForeColor = value;
+        }
+
 
         [Browsable(true)]
         [Category("FastGeneral")]
@@ -133,8 +138,10 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             get => textBox.Width;
             set
             {
-                this.Width = value;
-                textBox.Width = value;
+                //this.Width = value;
+                _shadowAdapter.Size = new Size(value, _shadowAdapter.Size.Height);
+                if (_shadowAdapter.ShadowEnabled)
+                    _shadowEngine.Apply();
             }
         }
 
@@ -146,13 +153,27 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             get => textBox.Height;
             set
             {
-                this.Height = value;
-                textBox.Height = value;
+                //this.Height = value;
+                _shadowAdapter.Size = new Size(_shadowAdapter.Size.Width,value);
+                if (_shadowAdapter.ShadowEnabled)
+                    _shadowEngine.Apply();
             }
         }
+        [Browsable(true)]
+        [Category("FastGeneral")]
+        [Description("Inner Text box size.")]
+        public string ControlInner
+        {
+            get => $"{this._shadowAdapter.Size.Width} , {this._shadowAdapter.Size.Height}";
+        }
 
-
-
+        [Browsable(true)]
+        [Category("FastGeneral")]
+        [Description("User control Text box size.")]
+        public string ControlOuter
+        {
+            get => $"{this.Width} , {this.Height}";
+        }
         [Browsable(true)]
         [Category("FastGeneral")]
         [Description("Defines the type of data allowed in this input.")]
@@ -372,84 +393,21 @@ namespace FastUI.Modules.Input.FastTextBoxUI
 
         // ---------------------------------------------------------------------
 
-        #region FastShadow
-
-        private void ApplyShadowLayout()
-        {
-            // --- 1) Reset inner control size before applying new shadow settings ---
-            // Ensures the TextBox always returns to its base/original dimensions.
-            textBox.Size = _shadowSettings.OriginalSize;
-
-            // --- 2) Apply shadow padding to the inner control ---
-            // Guna2 shadow uses Padding (Left, Top, Right, Bottom).
-            textBox.ShadowDecoration.Shadow = new Padding(
-                _shadowSettings.Left, _shadowSettings.Top, _shadowSettings.Right, _shadowSettings.Bottom
-            );
-
-            // --- 3) Move the inner control to reveal top/left shadow areas ---
-            // The textbox is shifted by the shadow values so shadow appears outside.
-
-
-            int x = _shadowSettings.Left;
-            int y = _shadowSettings.Top;
-
-            textBox.Location = new Point(x, y);
-
-
-            // --- 4) Resize the UserControl to include the entire shadow region ---
-            // New size = original textbox size + shadow padding on all sides.
-            int width = _shadowSettings.OriginalSize.Width + _shadowSettings.Left + _shadowSettings.Right;
-            int height = _shadowSettings.OriginalSize.Height + _shadowSettings.Top + _shadowSettings.Bottom;
-
-            // Temporarily detach SizeChanged to avoid recursive resizing loops.
-            this.SizeChanged -= FastTextBox_SizeChanged;
-            this.Size = new Size(width, height);
-            this.SizeChanged += FastTextBox_SizeChanged;
-
-            // --- 5) Refresh layout and visuals ---
-
-            this.Invalidate();
-        }
+        #region FastShadow  // ---- GENERAL SHADOW SETTINGS ----
 
         [Browsable(true)]
         [Category("FastShadow")]
         [Description("Enables or disables shadow around the control.")]
         public bool ShadowEnabled
         {
-            get => textBox.ShadowDecoration.Enabled;
+            get => _shadowAdapter.ShadowEnabled;
             set
             {
-                textBox.ShadowDecoration.Enabled = value;
+                _shadowAdapter.ShadowEnabled = value;
                 if (value)
-                {
-                    // Add extra space to render the shadow; 
-                    // this area won't be visible but allows the shadow to appear fully.
-
-                    textBox.Dock = DockStyle.None;
-                }
+                    _shadowEngine.Apply();
                 else
-                {
-                    // because adding shadow will make the cntainer control
-                    // bigger then the inner control , so resize will fix thing 
-                    // the inner control will be always in the original size
-                    // so it will help to retrive the original size for all the control
-                    this.Size = textBox.Size;
-
-                    // if we cancel the shadow no need for the old values
-                    // because it will apply directly when enbaled the shadow again and 
-                    // it can cost errors
-                    this.ShadowTop = 0;
-                    this.ShadowBottom = 0;
-                    this.ShadowLeft = 0;
-                    this.ShadowRight = 0;
-
-                    // no shadow so no need for more space this way the inner 
-                    // control is the same as the container controls
-                    textBox.Dock = DockStyle.Fill;
-                }
-
-                // Always match shadow radius to control radius
-                textBox.ShadowDecoration.BorderRadius = textBox.BorderRadius;
+                    _shadowEngine.Disable();
             }
         }
 
@@ -471,75 +429,60 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             set => textBox.ShadowDecoration.Depth = value;
         }
 
+        #endregion
 
-        // relevent to shadow : 
+
+        #region FastShadowEdges  // ---- PER-SIDE SHADOW VALUES ----
 
         [Browsable(true)]
-        [Category("FastShadow")]
+        [Category("FastShadowEdges")]
         [Description("Shadow size on the top side.")]
         public int ShadowTop
         {
-
-
             get => textBox.ShadowDecoration.Shadow.Top;
             set
             {
-                // can not set the shadow values while it is not enabaled 
-                // it can work only when the value is zero because when the shadow is set as unenabaled 
-                // the previuos values need to set to zeros to avaoid unxpected errors
-                if (textBox.ShadowDecoration.Enabled || value == 0)
-                {
-                    _shadowSettings.Top = value;
-                    ApplyShadowLayout();
-                }
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetTop(value);
             }
         }
 
         [Browsable(true)]
-        [Category("FastShadow")]
+        [Category("FastShadowEdges")]
         [Description("Shadow size on the bottom side.")]
         public int ShadowBottom
         {
             get => textBox.ShadowDecoration.Shadow.Bottom;
             set
             {
-                if (textBox.ShadowDecoration.Enabled || value == 0)
-                {
-                    _shadowSettings.Bottom = value;
-                    ApplyShadowLayout();
-                }
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetBottom(value);
             }
         }
 
         [Browsable(true)]
-        [Category("FastShadow")]
+        [Category("FastShadowEdges")]
         [Description("Shadow size on the left side.")]
         public int ShadowLeft
         {
             get => textBox.ShadowDecoration.Shadow.Left;
             set
             {
-                if (textBox.ShadowDecoration.Enabled || value == 0)
-                {
-                    _shadowSettings.Left = value;
-                    ApplyShadowLayout();
-                }
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetLeft(value);
             }
         }
 
         [Browsable(true)]
-        [Category("FastShadow")]
+        [Category("FastShadowEdges")]
         [Description("Shadow size on the right side.")]
         public int ShadowRight
         {
             get => textBox.ShadowDecoration.Shadow.Right;
             set
             {
-                if (textBox.ShadowDecoration.Enabled || value == 0)
-                {
-                    _shadowSettings.Right = value;
-                    ApplyShadowLayout();
-                }
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetRight(value);
             }
         }
 
@@ -590,29 +533,6 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             if (!allowed)
                 e.Handled = true;
         }
-        private void FastTextBox_SizeChanged(object sender, EventArgs e)
-        {
-            // relevent to shadow : 
-            // because the inner control need space so it can not be always the same as 
-            // the container (Dock = Fill), this event handller allow as to truck the original size only when the user changed it 
-            // and we can stop this event when we need to change the container control 
-            // size when adding shadow space which means the inner control will not chamge its size 
-            // at this case
-            _shadowSettings.OriginalSize = new Size(this.Width, this.Height);
-
-            // when the shadow doesnt work the inner control and the container
-            // control have the same size
-            if (!textBox.ShadowDecoration.Enabled)
-                textBox.Size = this.Size;
-            // when there is a shadow the inner container will get the rest size
-            else
-            {
-                int width = this.Width - textBox.ShadowDecoration.Shadow.Left - textBox.ShadowDecoration.Shadow.Right;
-                int height = this.Height - textBox.ShadowDecoration.Shadow.Top - textBox.ShadowDecoration.Shadow.Bottom;
-                textBox.Width = width;
-                textBox.Height = height;
-            }
-        }
 
 
         #region forDelete
@@ -633,13 +553,6 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             }
         }
 
-        [Browsable(true)]
-        [Category("FastShadow")]
-        [Description("Inner Text box size.")]
-        public string innerTextBoxSize
-        {
-            get => $"{textBox.Width} , {textBox.Height}";
-        }
         #endregion
 
     }

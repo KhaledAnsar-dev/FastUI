@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace FastUI.FastUILibrary.Core.Interfaces
 {
+    /// <summary>
+    /// Defines the required shadow-related properties that any FastUI control 
+    /// must expose to be managed by the FastShadowEngine.
+    /// </summary>
     public interface IFastShadowTarget
     {
         Size Size { get; set;}
@@ -15,8 +19,6 @@ namespace FastUI.FastUILibrary.Core.Interfaces
         int ShadowBlur { get; set; }
         Color ShadowColor { get; set; }
         int BorderRadius { get; }
-
-        event EventHandler SizeChanged;   
-
+        DockStyle Dock { get; set; }
     }
 }

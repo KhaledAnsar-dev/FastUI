@@ -11,18 +11,14 @@ namespace FastUI.FastUILibrary.Core.Shadow
     /// </summary>
     public class FastShadowSettings
     {
-        // Original control size before shadow adjustments
-        public Size OriginalSize { get; set; }
-
         // Shadow padding
         public int Top { get; set; } = 0;
         public int Bottom { get; set; } = 0;
         public int Left { get; set; } = 0;
         public int Right { get; set; } = 0;
 
-        public FastShadowSettings(Size originalSize)
+        public FastShadowSettings()
         {
-            OriginalSize = originalSize;
         }
     }
 }

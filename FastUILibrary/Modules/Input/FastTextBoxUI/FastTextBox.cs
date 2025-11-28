@@ -21,14 +21,16 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         //  Fields
         // =====================================================================
 
-        // Stores the original border color selected by the user or designer.
-        // Used to restore the normal styling after showing validation errors.
+        // Original border color (used to restore normal style)
         private Color _defaultBorderColor;
+
         private FastEnumInputType _inputType = FastEnumInputType.Text;
 
 
-
+        // Handles all shadow layout logic (padding, resizing, positioning)
         private FastShadowEngine _shadowEngine;
+
+        // Adapter that unifies how the inner control exposes shadow properties
         private IFastShadowTarget _shadowAdapter;
 
 
@@ -39,12 +41,8 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         {
             InitializeComponent();
 
-            // 1) Create adapter for the inner Guna2TextBox
             _shadowAdapter = new GunaShadowAdapter(textBox);
-
-            // 2) Create shadow engine to manage layout/size/shadow logic
-            _shadowEngine = new FastShadowEngine(this, _shadowAdapter);
-           
+            _shadowEngine = new FastShadowEngine(this, _shadowAdapter);     
         }
 
         // =====================================================================
@@ -135,13 +133,20 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         [Description("The width of the input component.")]
         public int ControlWidth
         {
-            get => textBox.Width;
+            get => _shadowAdapter.ShadowEnabled? textBox.Width : this.Width;
             set
             {
-                //this.Width = value;
-                _shadowAdapter.Size = new Size(value, _shadowAdapter.Size.Height);
                 if (_shadowAdapter.ShadowEnabled)
+                {
+                    // When shadow is enabled: resize only the inner textbox and reapply padding
+                    textBox.Width = value;
                     _shadowEngine.Apply();
+                }
+                else
+                {
+                    // Without shadow: resize the container directly
+                    this.Width = value;
+                }
             }
         }
 
@@ -150,41 +155,20 @@ namespace FastUI.Modules.Input.FastTextBoxUI
         [Description("The height of the input component.")]
         public int ControlHeight
         {
-            get => textBox.Height;
+            get => _shadowAdapter.ShadowEnabled ? textBox.Height : this.Height;
             set
             {
-                //this.Height = value;
-                _shadowAdapter.Size = new Size(_shadowAdapter.Size.Width,value);
                 if (_shadowAdapter.ShadowEnabled)
+                {
+                    // When shadow is enabled: resize inner textbox and update shadow layout
+                    textBox.Height = value;
                     _shadowEngine.Apply();
-            }
-        }
-        [Browsable(true)]
-        [Category("FastGeneral")]
-        [Description("Inner Text box size.")]
-        public string ControlInner
-        {
-            get => $"{this._shadowAdapter.Size.Width} , {this._shadowAdapter.Size.Height}";
-        }
-
-        [Browsable(true)]
-        [Category("FastGeneral")]
-        [Description("User control Text box size.")]
-        public string ControlOuter
-        {
-            get => $"{this.Width} , {this.Height}";
-        }
-        [Browsable(true)]
-        [Category("FastGeneral")]
-        [Description("Defines the type of data allowed in this input.")]
-        public FastEnumInputType InputType
-        {
-            get => _inputType;
-            set
-            {
-                _inputType = value;
-
-                textBox.PlaceholderText = FastUtilsTextBox.GetPlaceholder(value);
+                }
+                else
+                {
+                    // Without shadow: resize the container itself
+                    this.Height = value;
+                }
             }
         }
 
@@ -405,9 +389,18 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             {
                 _shadowAdapter.ShadowEnabled = value;
                 if (value)
-                    _shadowEngine.Apply();
+                {
+                    // Enable shadow: remove docking and sync inner control size with the container
+                    _shadowAdapter.Dock = DockStyle.None;
+                    textBox.Size = this.Size;
+                }
                 else
+                {
+                    // Disable shadow: reset layout and dock the control to fill the container
                     _shadowEngine.Disable();
+                    _shadowAdapter.Dock = DockStyle.Fill;
+
+                }
             }
         }
 
@@ -442,6 +435,7 @@ namespace FastUI.Modules.Input.FastTextBoxUI
             get => textBox.ShadowDecoration.Shadow.Top;
             set
             {
+                // Apply top shadow padding only when shadow is enabled (or when removing it using zero).
                 if (_shadowAdapter.ShadowEnabled || value == 0)
                     _shadowEngine.SetTop(value);
             }

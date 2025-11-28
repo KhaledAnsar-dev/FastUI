@@ -1,4 +1,7 @@
 ﻿using FastUI.FastUILibrary.Core;
+using FastUI.FastUILibrary.Core.Interfaces;
+using FastUI.FastUILibrary.Core.Shadow;
+using FastUI.FastUILibrary.Core.Shadow.Adapters;
 using FastUI.FastUILibrary.Modules.Buttons.FastButtonUI.Support;
 using System;
 using System.Collections.Generic;
@@ -13,15 +16,38 @@ using System.Windows.Forms;
 
 namespace FastUI.Modules.Buttons.FastButtonUI
 {
+    /// <summary>
+    /// A customizable FastUI button that supports styling, text and image control,
+    /// interaction states, and optional shadow rendering through FastShadowEngine.
+    /// </summary>
     public partial class FastButton : UserControl
     {
+
+        // =====================================================================
+        //  Fields
+        // =====================================================================
+
+        // Handles all shadow layout logic (padding, resizing)
+        private FastShadowEngine _shadowEngine;
+
+        // Adapter exposing shadow-related properties of the inner button
+        private IFastShadowTarget _shadowAdapter;
+
+
         // =====================================================================
         //  Constructors
         // =====================================================================
         public FastButton()
         {
             InitializeComponent();
+
+            // Adapter mapping shadow APIs of the Guna2 button
+            _shadowAdapter = new GunaShadowButtonAdapter(button);
+
+            // Core engine that manages shadow padding & layout
+            _shadowEngine = new FastShadowEngine(this, _shadowAdapter);
         }
+
 
         // =====================================================================
         //  Public Properties
@@ -38,34 +64,52 @@ namespace FastUI.Modules.Buttons.FastButtonUI
             set => button.Text = value;
         }
 
-
         [Browsable(true)]
         [Category("FastGeneral")]
-        [Description("The width of the input component.")]
+        [Description("The width of the button component.")]
         public int ControlWidth
         {
-            get => button.Width;
+            get => _shadowAdapter.ShadowEnabled ? button.Width : this.Width;
             set
             {
-                this.Width = value;
-                button.Width = value;
+                if (_shadowAdapter.ShadowEnabled)
+                {
+                    // Resize inner button and refresh shadow layout
+                    button.Width = value;
+                    _shadowEngine.Apply();
+                }
+                else
+                {
+                    // Resize container directly
+                    this.Width = value;
+                }
             }
         }
 
         [Browsable(true)]
         [Category("FastGeneral")]
-        [Description("The height of the input component.")]
+        [Description("The height of the button component.")]
         public int ControlHeight
         {
-            get => button.Height;
+            get => _shadowAdapter.ShadowEnabled ? button.Height : this.Height;
             set
             {
-                this.Height = value;
-                button.Height = value;
+                if (_shadowAdapter.ShadowEnabled)
+                {
+                    // Resize inner button then update shadow
+                    button.Height = value;
+                    _shadowEngine.Apply();
+                }
+                else
+                {
+                    // Resize container directly
+                    this.Height = value;
+                }
             }
         }
 
         #endregion
+
 
         // ---------------------------------------------------------------------
 
@@ -73,7 +117,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastStyle")]
-        [Description("Background color of the input field.")]
+        [Description("Background color of the button.")]
         public Color FillColor
         {
             get => button.FillColor;
@@ -82,7 +126,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastStyle")]
-        [Description("Determines how rounded the corners of the input field are.")]
+        [Description("Determines how rounded the corners of the button are.")]
         public int CornerRadius
         {
             get => button.BorderRadius;
@@ -91,7 +135,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastStyle")]
-        [Description("Thickness of the field border.")]
+        [Description("Thickness of the button border.")]
         public int BorderWidth
         {
             get => button.BorderThickness;
@@ -100,18 +144,15 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastStyle")]
-        [Description("Color of the field border.")]
+        [Description("Color of the button border.")]
         public Color BorderColor
         {
             get => button.BorderColor;
-            set
-            {
-                button.BorderColor = value;
-            }
+            set => button.BorderColor = value;
         }
 
-
         #endregion
+
 
         // ---------------------------------------------------------------------
 
@@ -119,7 +160,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastText")]
-        [Description("The size of the text typed by the user.")]
+        [Description("The size of the text inside the button.")]
         public float FontSize
         {
             get => button.Font.Size;
@@ -127,7 +168,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
             {
                 button.Font = new Font(button.Font.FontFamily, value);
 
-                // Ensure font-size changes do NOT alter the control's dimensions.
+                // Keep size unchanged when modifying font
                 button.Height = this.Height;
                 button.Width = this.Width;
             }
@@ -135,7 +176,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastText")]
-        [Description("The color of the main input text.")]
+        [Description("The color of the button text.")]
         public Color FontColor
         {
             get => button.ForeColor;
@@ -144,7 +185,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastText")]
-        [Description("Full font settings for the input text.")]
+        [Description("Full font configuration.")]
         public Font MoreFontSettings
         {
             get => button.Font;
@@ -153,34 +194,25 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastText")]
-        [Description("Move the button text horizontally.")]
+        [Description("Moves the button text horizontally.")]
         public int MoveTextHorizontal
         {
             get => button.TextOffset.X;
-            set
-            {
-                button.TextOffset = new Point(value, button.TextOffset.Y);
-            }
+            set => button.TextOffset = new Point(value, button.TextOffset.Y);
         }
 
         [Browsable(true)]
         [Category("FastText")]
-        [Description("Move the button text vertically.")]
+        [Description("Moves the button text vertically.")]
         public int MoveTextVertical
         {
-            // The framework interprets vertical offset in the opposite direction,
-            // so we invert the value to match what the user naturally expects.
             get => -button.TextOffset.Y;
-            set
-            {
-                int correctedValue = -value;
-                button.TextOffset = new Point(button.TextOffset.X, correctedValue);
-            }
+            set => button.TextOffset = new Point(button.TextOffset.X, -value);
         }
 
         [Browsable(true)]
         [Category("FastText")]
-        [Description("Defines the text alignment inside the button.")]
+        [Description("Defines text alignment inside the button.")]
         public FastEnumPosition TextPosition
         {
             get
@@ -205,13 +237,14 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         #endregion
 
+
         // ---------------------------------------------------------------------
 
         #region Fast Interaction
 
         [Browsable(true)]
         [Category("FastInteraction")]
-        [Description("Background color when the mouse is hovering over the field.")]
+        [Description("Background color on hover.")]
         public Color HoverFillColor
         {
             get => button.HoverState.FillColor;
@@ -220,7 +253,7 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastInteraction")]
-        [Description("Text color when the mouse is hovering over the field.")]
+        [Description("Text color on hover.")]
         public Color HoverTextColor
         {
             get => button.HoverState.ForeColor;
@@ -229,13 +262,15 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastInteraction")]
-        [Description("Border color when the mouse is hovering over the field.")]
+        [Description("Border color on hover.")]
         public Color HoverBorderColor
         {
             get => button.HoverState.BorderColor;
             set => button.HoverState.BorderColor = value;
         }
+
         #endregion
+
 
         // ---------------------------------------------------------------------
 
@@ -248,19 +283,17 @@ namespace FastUI.Modules.Buttons.FastButtonUI
         {
             get => button.Image;
             set => button.Image = value;
-
         }
 
         [Browsable(true)]
         [Category("FastImage")]
-        [Description("Defines the horizontal position of the button image.")]
+        [Description("Horizontal alignment of the button image.")]
         public FastEnumPosition ImagePosition
         {
             get
             {
                 return button.ImageAlign switch
                 {
-
                     HorizontalAlignment.Center => FastEnumPosition.Center,
                     HorizontalAlignment.Right => FastEnumPosition.Right,
                     _ => FastEnumPosition.Left
@@ -292,16 +325,12 @@ namespace FastUI.Modules.Buttons.FastButtonUI
         public int MoveImageVertical
         {
             get => -button.ImageOffset.Y;
-            set
-            {
-                int correctedValue = -value;
-                button.ImageOffset = new Point(button.ImageOffset.X, correctedValue);
-            }
+            set => button.ImageOffset = new Point(button.ImageOffset.X, -value);
         }
 
         [Browsable(true)]
         [Category("FastImage")]
-        [Description("Defines the width of the button image.")]
+        [Description("Image width inside the button.")]
         public int ImageWidth
         {
             get => button.ImageSize.Width;
@@ -310,22 +339,131 @@ namespace FastUI.Modules.Buttons.FastButtonUI
 
         [Browsable(true)]
         [Category("FastImage")]
-        [Description("Defines the height of the button image.")]
+        [Description("Image height inside the button.")]
         public int ImageHeight
         {
             get => button.ImageSize.Height;
             set => button.ImageSize = new Size(button.ImageSize.Width, value);
         }
+
         #endregion
 
 
+        // ---------------------------------------------------------------------
+
+        #region FastShadow
+
+        [Browsable(true)]
+        [Category("FastShadow")]
+        [Description("Enables or disables shadow around the button.")]
+        public bool ShadowEnabled
+        {
+            get => _shadowAdapter.ShadowEnabled;
+            set
+            {
+                _shadowAdapter.ShadowEnabled = value;
+
+                if (value)
+                {
+                    // Enable shadow: undock and sync size
+                    _shadowAdapter.Dock = DockStyle.None;
+                    button.Size = this.Size;
+                    _shadowEngine.Apply();
+                }
+                else
+                {
+                    // Disable shadow and restore layout
+                    _shadowEngine.Disable();
+                    _shadowAdapter.Dock = DockStyle.Fill;
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastShadow")]
+        public Color ShadowColor
+        {
+            get => _shadowAdapter.ShadowColor;
+            set => _shadowAdapter.ShadowColor = value;
+        }
+
+        [Browsable(true)]
+        [Category("FastShadow")]
+        public int ShadowBlur
+        {
+            get => _shadowAdapter.ShadowBlur;
+            set => _shadowAdapter.ShadowBlur = value;
+        }
+
+        #endregion
+
+
+        // ---------------------------------------------------------------------
+
+        #region FastShadowEdges
+
+        [Browsable(true)]
+        [Category("FastShadowEdges")]
+        public int ShadowTop
+        {
+            get => _shadowAdapter.ShadowPadding.Top;
+            set
+            {
+                // Apply only if shadow is enabled or being cleared
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetTop(value);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastShadowEdges")]
+        public int ShadowBottom
+        {
+            get => _shadowAdapter.ShadowPadding.Bottom;
+            set
+            {
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetBottom(value);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastShadowEdges")]
+        public int ShadowLeft
+        {
+            get => _shadowAdapter.ShadowPadding.Left;
+            set
+            {
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetLeft(value);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("FastShadowEdges")]
+        public int ShadowRight
+        {
+            get => _shadowAdapter.ShadowPadding.Right;
+            set
+            {
+                if (_shadowAdapter.ShadowEnabled || value == 0)
+                    _shadowEngine.SetRight(value);
+            }
+        }
+
+        #endregion
+
+
+        // ---------------------------------------------------------------------
 
         private FastEnumStyle _savedStyle = FastEnumStyle.normal;
+
         [Browsable(true)]
         [Category("FastForDelete")]
         public FastEnumStyle SetStyle
         {
-            get => _savedStyle; set
+            get => _savedStyle;
+            set
             {
                 if (value == FastEnumStyle.Windows11)
                 {

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace FastUI.Core.Rendering
 {
     /// <summary>
     /// Renders FastUI buttons using high-quality smoothing, rounded corners,
     /// border simulation, and supersampling for crisp edges.
+    /// Now supports text alignment + text offset.
     /// </summary>
     public class FastButtonRenderer
     {
@@ -18,7 +20,19 @@ namespace FastUI.Core.Rendering
         // Supersampling factor for smoother curves
         private const int SSAA = 2;
 
-        public void Render(Graphics g, Rectangle bounds, string text, Font font, Color textColor, bool designerMode)
+
+        // =====================================================================
+        //  MAIN RENDER FUNCTION (FuiButton calls this one)
+        // =====================================================================
+        public void Render(
+            Graphics g,
+            Rectangle bounds,
+            string text,
+            Font font,
+            Color textColor,
+            bool designerMode,
+            FastUI.Modules.Buttons.FuiButton.FastTextAlign textAlign,
+            Point textOffset)
         {
             int w = bounds.Width * SSAA;
             int h = bounds.Height * SSAA;
@@ -26,7 +40,6 @@ namespace FastUI.Core.Rendering
             using (Bitmap bmp = new Bitmap(w, h))
             using (Graphics sg = Graphics.FromImage(bmp))
             {
-                // High-quality rendering setup
                 sg.SmoothingMode = SmoothingMode.AntiAlias;
                 sg.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 sg.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -36,20 +49,24 @@ namespace FastUI.Core.Rendering
                 float radius = Radius * SSAA;
                 float thickness = BorderThickness * SSAA;
 
-                // ===== BACKGROUND SHAPE =====
+
+                // =============================================================
+                //  BACKGROUND SHAPE
+                // =============================================================
                 using (GraphicsPath p = CreateRoundedRect(r, radius))
                 using (SolidBrush b = new SolidBrush(BackgroundColor))
                     sg.FillPath(b, p);
 
-                // ===== BORDER USING FILL TECHNIQUE =====
+
+                // =============================================================
+                //  BORDER (FILL TECHNIQUE)
+                // =============================================================
                 if (BorderThickness > 0)
                 {
-                    // Outer border area
                     using (GraphicsPath outerPath = CreateRoundedRect(r, radius))
                     using (SolidBrush borderBrush = new SolidBrush(BorderColor))
                         sg.FillPath(borderBrush, outerPath);
 
-                    // Inner shape that restores background
                     float shrink = thickness;
 
                     RectangleF innerRect = new RectangleF(
@@ -66,30 +83,75 @@ namespace FastUI.Core.Rendering
                         sg.FillPath(bgBrush, innerPath);
                 }
 
-                // ===== DRAW RESULT BACK TO MAIN GRAPHICS (downscaled) =====
+
+                // =============================================================
+                //  DRAW TO CONTROL (Downscale)
+                // =============================================================
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.DrawImage(bmp, bounds);
             }
 
-            // ===== TEXT =====
-            // Centered text rendering
+
+            // =============================================================
+            //  TEXT RENDERING WITH ALIGNMENT + OFFSET
+            // =============================================================
+
+            // base rectangle for text
+            Rectangle textRect = new Rectangle(
+                bounds.X + textOffset.X,
+                bounds.Y + textOffset.Y,
+                bounds.Width,
+                bounds.Height
+            );
+
+            TextFormatFlags flags = TextFormatFlags.VerticalCenter;
+
+            switch (textAlign)
+            {
+                case FastUI.Modules.Buttons.FuiButton.FastTextAlign.Left:
+                    flags |= TextFormatFlags.Left;
+                    break;
+
+                case FastUI.Modules.Buttons.FuiButton.FastTextAlign.Right:
+                    flags |= TextFormatFlags.Right;
+                    break;
+
+                default:
+                case FastUI.Modules.Buttons.FuiButton.FastTextAlign.Center:
+                    flags |= TextFormatFlags.HorizontalCenter;
+                    break;
+            }
+
             TextRenderer.DrawText(
                 g,
                 text,
                 font,
-                bounds,
+                textRect,
                 textColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
+                flags
             );
         }
 
-        // Creates a smooth rounded rectangle using arcs (optimized for supersampling)
-        public static GraphicsPath CreateRoundedRectoff(RectangleF rect, float radius)
+
+
+        // =====================================================================
+        //  Rounded Rectangle (supports radius = 0)
+        // =====================================================================
+        public static GraphicsPath CreateRoundedRect(RectangleF rect, float radius)
         {
-            float d = radius * 2f;
             GraphicsPath path = new GraphicsPath();
 
-            // Corner arcs
+            if (radius <= 0f)
+            {
+                path.AddRectangle(rect);
+                path.CloseFigure();
+                return path;
+            }
+
+            float maxRadius = Math.Min(rect.Width, rect.Height) / 2f;
+            float r = Math.Min(radius, maxRadius);
+            float d = r * 2f;
+
             path.AddArc(rect.X, rect.Y, d, d, 180, 90);
             path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
             path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
@@ -98,32 +160,5 @@ namespace FastUI.Core.Rendering
             path.CloseFigure();
             return path;
         }
-        public static GraphicsPath CreateRoundedRect(RectangleF rect, float radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-
-            // 1) No radius → normal rectangle (fix for radius = 0)
-            if (radius <= 0f)
-            {
-                path.AddRectangle(rect);
-                path.CloseFigure();
-                return path;
-            }
-
-            // 2) Clamp radius so it never exceeds half of width/height
-            float maxRadius = Math.Min(rect.Width, rect.Height) / 2f;
-            float r = Math.Min(radius, maxRadius);
-            float d = r * 2f;
-
-            // 3) Normal arc-based rounded rect
-            path.AddArc(rect.X, rect.Y, d, d, 180, 90); // TL
-            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90); // TR
-            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90); // BR
-            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90); // BL
-
-            path.CloseFigure();
-            return path;
-        }
-
     }
 }

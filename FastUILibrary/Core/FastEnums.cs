@@ -22,4 +22,12 @@ namespace FastUI.FastUILibrary.Core
     }
     public enum FastEnumStyle { normal, Windows11 };
 
+    /// <summary>
+    /// Determines whether the combo box should allow a "None" option.
+    /// </summary>
+    public enum FastNoneMode
+    {
+        Allowed,
+        NotAllowed
+    }
 }

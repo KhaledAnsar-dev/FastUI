@@ -21,6 +21,8 @@ namespace FastUI.FastUILibrary.Core.Shadow.Adapters
             ctrl.ShadowDecoration.Depth = 5;
             ctrl.ShadowDecoration.BorderRadius = ctrl.BorderRadius;
         }
+        public bool IsCombo { set; get; } = false;
+        public int ItemHeight { set; get; }
 
         public Size Size
         {

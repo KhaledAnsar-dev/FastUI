@@ -58,6 +58,15 @@ namespace FastUI.FastUILibrary.Core.Shadow
             // Update the inner control only if shadow is enabled
             if (_innerControl.ShadowEnabled)
             {
+
+                //if (_innerControl.IsCombo)
+                //{
+                //    _innerControl.Size = new Size(
+                //        _container.Width - _settings.Left - _settings.Right, 0
+                //    );
+                //    _innerControl.ItemHeight = _container.Height - _settings.Top - _settings.Bottom - 6;
+
+                //}
                 // Recalculate inner control size based on shadow padding margins
                 _innerControl.Size = new Size(
                     _container.Width - _settings.Left - _settings.Right,
@@ -82,6 +91,14 @@ namespace FastUI.FastUILibrary.Core.Shadow
 
             // Prevent recursive SizeChanged events while adjusting container size
             _internalResize = true;
+
+            //if(_innerControl.IsCombo)
+            //    {
+            //    int width = _innerControl.Size.Width + _settings.Left + _settings.Right;
+            //    int height = _innerControl.ItemHeight + _settings.Top + _settings.Bottom + 6;
+                
+            //    _container.Size = new Size(width, height);
+            //}
 
             // Resize container so it matches (inner control size + padding)
             _container.Size = new Size(

@@ -20,5 +20,8 @@ namespace FastUI.FastUILibrary.Core.Interfaces
         Color ShadowColor { get; set; }
         int BorderRadius { get; }
         DockStyle Dock { get; set; }
+        int ItemHeight { get; set; }
+        bool IsCombo { get; set; }
+
     }
 }

@@ -12,7 +12,7 @@
     <Folder Include="FastUILibrary\Modules\Buttons\ModuleSupport\" />
     <Folder Include="FastUILibrary\Modules\Display\" />
     <Folder Include="FastUILibrary\Modules\Input\ModuleSupport\" />
-    <Folder Include="FastUILibrary\Modules\Selection\" />
+    <Folder Include="FastUILibrary\Modules\Selection\FastComboBoxUI\Support\" />
     <Folder Include="FastUILibrary\Styles\Modern\" />
     <Folder Include="FastUILibrary\Styles\Classic\" />
     <Folder Include="FastUILibrary\Styles\Custom\" />

@@ -30,7 +30,8 @@ namespace FastUI.FastUILibrary.Core.Shadow.Adapters
             // Sync shadow radius with control's corner radius
             ctrl.ShadowDecoration.BorderRadius = ctrl.BorderRadius;
         }
-
+        public bool IsCombo { set; get; } = false;
+        public int ItemHeight { set; get; }
         // Forward size read/write
         public Size Size
         {

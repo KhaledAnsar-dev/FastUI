@@ -32,20 +32,36 @@ namespace FastUI.Core.Rendering
                 float thickness = BorderThickness * SSAA;
 
                 // ===== BACKGROUND =====
-                using (GraphicsPath p = CreateSmoothRoundedRect(r, radius))
+                using (GraphicsPath p = CreateRoundedRect(r, radius))
                 using (SolidBrush b = new SolidBrush(BackgroundColor))
                     sg.FillPath(b, p);
 
-                // ===== BORDER =====
+                // ===== BORDER (Fill Technique) =====
                 if (BorderThickness > 0)
                 {
-                    using (GraphicsPath p = CreateSmoothRoundedRect(r, radius))
-                    using (Pen pen = new Pen(BorderColor, thickness))
-                    {
-                        pen.Alignment = PenAlignment.Center;
-                        sg.DrawPath(pen, p);
-                    }
+                    float shrink = thickness;
+
+                    // Outer shape (border color)
+                    using (GraphicsPath outerPath = CreateRoundedRect(r, radius))
+                    using (SolidBrush borderBrush = new SolidBrush(BorderColor))
+                        sg.FillPath(borderBrush, outerPath);
+
+                    // Inner shape (background color)
+                    RectangleF innerRect = new RectangleF(
+                        r.X + shrink,
+                        r.Y + shrink,
+                        r.Width - shrink * 2,
+                        r.Height - shrink * 2
+                    );
+
+                    float innerRadius = Math.Max(radius - shrink, 1);
+
+                    using (GraphicsPath innerPath = CreateRoundedRect(innerRect, innerRadius))
+                    using (SolidBrush bgBrush = new SolidBrush(BackgroundColor))
+                        sg.FillPath(bgBrush, innerPath);
                 }
+
+
 
                 // ===== DRAW TO REAL GRAPHICS (Downscale) =====
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -64,36 +80,22 @@ namespace FastUI.Core.Rendering
         }
 
         // Same Bezier method, but now it's perfect with supersampling
-        public static GraphicsPath CreateSmoothRoundedRect(RectangleF rect, float radius)
+        public static GraphicsPath CreateRoundedRect(RectangleF rect, float radius)
         {
-            float r = radius;
-
+            float d = radius * 2f;
             GraphicsPath path = new GraphicsPath();
-            path.StartFigure();
 
-            // TOP LEFT
-            path.AddBezier(rect.X, rect.Y + r,
-                           rect.X, rect.Y,
-                           rect.X, rect.Y,
-                           rect.X + r, rect.Y);
+            // Top-left arc
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
 
-            // TOP RIGHT
-            path.AddBezier(rect.Right - r, rect.Y,
-                           rect.Right, rect.Y,
-                           rect.Right, rect.Y,
-                           rect.Right, rect.Y + r);
+            // Top-right arc
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
 
-            // BOTTOM RIGHT
-            path.AddBezier(rect.Right, rect.Bottom - r,
-                           rect.Right, rect.Bottom,
-                           rect.Right, rect.Bottom,
-                           rect.Right - r, rect.Bottom);
+            // Bottom-right arc
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
 
-            // BOTTOM LEFT
-            path.AddBezier(rect.X + r, rect.Bottom,
-                           rect.X, rect.Bottom,
-                           rect.X, rect.Bottom,
-                           rect.X, rect.Bottom - r);
+            // Bottom-left arc
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
 
             path.CloseFigure();
             return path;

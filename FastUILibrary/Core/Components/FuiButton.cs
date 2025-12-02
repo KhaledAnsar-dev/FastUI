@@ -64,8 +64,8 @@ namespace FastUI.Modules.Buttons
 
         public float Radius
         {
-            get => _renderer.Radius;
-            set { _renderer.Radius = value; Invalidate(); }
+            get => _renderer.Radius /10;
+            set { _renderer.Radius = value *10; Invalidate(); }
         }
 
         private Color LerpColor(Color a, Color b, float t)

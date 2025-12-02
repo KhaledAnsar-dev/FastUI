@@ -6,10 +6,16 @@ using FastUI.Core.Rendering;
 
 namespace FastUI.Modules.Buttons
 {
+    /// <summary>
+    /// A lightweight custom button that supports smooth rounded rendering,
+    /// hover color transitions, and high-quality drawing via FastButtonRenderer.
+    /// </summary>
     public class FuiButton : Control
     {
+        // Renders the button visuals
         private FastButtonRenderer _renderer = new FastButtonRenderer();
 
+        // Hover animation state
         private bool _isHovered = false;
         private float _hoverLerp = 0f;
         private readonly float _hoverSpeed = 0.15f;
@@ -32,6 +38,7 @@ namespace FastUI.Modules.Buttons
 
         public Color BorderHoverColor { get; set; } = Color.Black;
 
+        // Detect design-mode safely (WinForms quirk)
         private bool IsInDesigner =>
             DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
@@ -40,6 +47,7 @@ namespace FastUI.Modules.Buttons
             Size = new Size(120, 40);
             Font = new Font("Segoe UI", 10f);
 
+            // Enable smooth custom painting
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint |
@@ -52,6 +60,7 @@ namespace FastUI.Modules.Buttons
             BackColor = Color.Transparent;
             UpdateStyles();
 
+            // Initial renderer setup
             _renderer.BackgroundColor = _normalColor;
             _renderer.BorderColor = _borderNormalColor;
         }
@@ -64,10 +73,11 @@ namespace FastUI.Modules.Buttons
 
         public float Radius
         {
-            get => _renderer.Radius /10;
-            set { _renderer.Radius = value *10; Invalidate(); }
+            get => _renderer.Radius / 5;
+            set { _renderer.Radius = value * 5; Invalidate(); }
         }
 
+        // Smooth color blending for hover animation
         private Color LerpColor(Color a, Color b, float t)
         {
             return Color.FromArgb(
@@ -84,18 +94,22 @@ namespace FastUI.Modules.Buttons
 
             if (!designer)
             {
+                // Animate hover transition
                 _hoverLerp = _isHovered
                     ? Math.Min(1f, _hoverLerp + _hoverSpeed)
                     : Math.Max(0f, _hoverLerp - _hoverSpeed);
             }
 
+            // Update renderer colors
             _renderer.BackgroundColor = LerpColor(_normalColor, HoverColor, _hoverLerp);
             _renderer.BorderColor = LerpColor(_borderNormalColor, BorderHoverColor, _hoverLerp);
 
             base.OnPaint(e);
 
+            // Draw button
             _renderer.Render(e.Graphics, ClientRectangle, Text, Font, ForeColor, designer);
 
+            // Redraw continuously for animation
             if (!designer)
                 Invalidate();
         }
@@ -105,7 +119,10 @@ namespace FastUI.Modules.Buttons
             get
             {
                 var cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED (double buffering)
+
+                // Enable deep double-buffering to remove flicker
+                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED
+
                 return cp;
             }
         }
@@ -114,6 +131,7 @@ namespace FastUI.Modules.Buttons
         {
             if (!IsInDesigner)
                 _isHovered = true;
+
             base.OnMouseEnter(e);
         }
 
@@ -121,6 +139,7 @@ namespace FastUI.Modules.Buttons
         {
             if (!IsInDesigner)
                 _isHovered = false;
+
             base.OnMouseLeave(e);
         }
     }

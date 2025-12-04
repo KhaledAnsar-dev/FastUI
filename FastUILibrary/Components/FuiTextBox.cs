@@ -1,83 +1,63 @@
-﻿using System;
+﻿using FastUI.FastUILibrary.Core.Rendering;
+using System;
+using FastUI.FastUILibrary.Core;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using FastUI.Core.Rendering;
 
-namespace FastUI.Modules.Input
+namespace FastUI.FastUILibrary.Components
 {
-    public class FuiTextBox2 : Control
+    public class FuiTextBox : Control
     {
         // ============================================================
         //  Fields
         // ============================================================
 
-        // Renderer responsible for drawing the background & borders
-        private FastButtonRenderer _renderer = new FastButtonRenderer();
+        private FastShapeRenderer _renderer = new FastShapeRenderer();
 
-        // Tracks if mouse truly left the control (supports delayed focus removal)
         private bool _leftControl = false;
-
-        // Timer used to delay focus removal after mouse leave
         private System.Windows.Forms.Timer _leaveTimer;
-
-        // State: hover & focus flags
         private bool _isHovered = false;
         private bool _isFocused = false;
 
-        // Animation interpolation values
         private float _hoverLerp = 0f;
         private float _focusLerp = 0f;
 
-        // Animation speeds
         private readonly float _hoverSpeed = 0.5f;
         private readonly float _focusSpeed = 0.32f;
 
-        // Text + Placeholder
         private string _textValue = "";
         private string _placeholder = "Placeholder";
-
-        // Whether placeholder should be shown
         private bool _showingPlaceholder = true;
 
-        // Text offset inside control
         private Point _textOffset = new Point(8, 0);
 
-        // Normal state colors
         private Color _normalFill = Color.White;
         private Color _borderNormal = Color.Gray;
 
-        // Hover state colors
         private Color _hoverFill = Color.FromArgb(245, 245, 245);
         private Color _hoverBorder = Color.Black;
 
-        // Focus state colors
         private Color _focusFill = Color.White;
         private Color _focusBorder = Color.DodgerBlue;
 
-        // Text alignment enum
-        public enum FastTextAlign { Left, Center, Right }
         private FastTextAlign _textAlign = FastTextAlign.Left;
 
-        // Caret positions
         private int _caretIndex = 0;
         private int _selectionStart = 0;
         private int _selectionLength = 0;
 
-        // Caret blinking visibility
         private bool _caretVisible = true;
-
-        // Caret blinking timer
         private System.Windows.Forms.Timer _caretTimer;
-
-        // Animation update timer
         private System.Windows.Forms.Timer _animTimer;
 
-        // Mouse selection variables
         private bool _mouseDown = false;
         private int _mouseDownIndex = 0;
 
-        // Text drawing colors
         [Category("Fast A - Text")]
         public Color TextColor { get; set; } = Color.Black;
 
@@ -85,17 +65,25 @@ namespace FastUI.Modules.Input
         public Color PlaceholderColor { get; set; } = Color.Gray;
 
 
-
         // ============================================================
-        //  Properties (Organized A → F)
+        //  Properties
         // ============================================================
-
-        // ----------------------------
-        // A) TEXT
-        // ----------------------------
 
         [Category("Fast A - Text")]
-        [Description("The main text placeholder shown when the user has entered no value.")]
+        [Description("Gets or sets the text inside the FastTextBox.")]
+        public string FastText
+        {
+            get => _textValue;
+            set
+            {
+                _textValue = value ?? "";
+                _showingPlaceholder = string.IsNullOrEmpty(_textValue);
+                _caretIndex = _textValue.Length;
+                Invalidate();
+            }
+        }
+
+        [Category("Fast A - Text")]
         public string Placeholder
         {
             get => _placeholder;
@@ -103,7 +91,6 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast A - Text")]
-        [Description("Horizontal offset applied when drawing text.")]
         public int MoveTextHorizontal
         {
             get => _textOffset.X;
@@ -111,7 +98,6 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast A - Text")]
-        [Description("Vertical offset applied when drawing text.")]
         public int MoveTextVertical
         {
             get => _textOffset.Y;
@@ -119,7 +105,6 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast A - Text")]
-        [Description("Font size of the textbox text.")]
         public float FontSize
         {
             get => Font.Size;
@@ -127,33 +112,20 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast A - Text")]
-        [Description("Defines how text inside the control is aligned.")]
         public FastTextAlign TextAlignment
         {
             get => _textAlign;
             set { _textAlign = value; Invalidate(); }
         }
 
-
-        // ----------------------------
-        // B) PLACEHOLDER
-        // ----------------------------
-
         [Category("Fast B - Placeholder")]
-        [Description("Color of the placeholder text.")]
         public Color PlaceholderTextColor
         {
             get => PlaceholderColor;
             set { PlaceholderColor = value; Invalidate(); }
         }
 
-
-        // ----------------------------
-        // C) COLORS – NORMAL
-        // ----------------------------
-
         [Category("Fast C - Colors Normal")]
-        [Description("Background color when control is in normal state.")]
         public Color FillColor
         {
             get => _normalFill;
@@ -161,20 +133,13 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast C - Colors Normal")]
-        [Description("Border color when control is in normal state.")]
         public Color BorderColor
         {
             get => _borderNormal;
             set { _borderNormal = value; Invalidate(); }
         }
 
-
-        // ----------------------------
-        // D) COLORS – HOVER
-        // ----------------------------
-
         [Category("Fast D - Colors Hover")]
-        [Description("Background color when mouse hovers over the control.")]
         public Color HoverFillColor
         {
             get => _hoverFill;
@@ -182,20 +147,13 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast D - Colors Hover")]
-        [Description("Border color when mouse hovers over the control.")]
         public Color HoverBorderColor
         {
             get => _hoverBorder;
             set { _hoverBorder = value; Invalidate(); }
         }
 
-
-        // ----------------------------
-        // E) COLORS – FOCUS
-        // ----------------------------
-
         [Category("Fast E - Colors Focus")]
-        [Description("Background color when the control is focused.")]
         public Color FocusFillColor
         {
             get => _focusFill;
@@ -203,20 +161,13 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast E - Colors Focus")]
-        [Description("Border color when the control is focused.")]
         public Color FocusBorderColor
         {
             get => _focusBorder;
             set { _focusBorder = value; Invalidate(); }
         }
 
-
-        // ----------------------------
-        // F) STYLE
-        // ----------------------------
-
         [Category("Fast F - Style")]
-        [Description("Corner radius of the textbox border.")]
         public float CornerRadius
         {
             get => _renderer.Radius;
@@ -224,7 +175,6 @@ namespace FastUI.Modules.Input
         }
 
         [Category("Fast F - Style")]
-        [Description("Border thickness used when drawing the control.")]
         public float BorderWidth
         {
             get => _renderer.BorderThickness;
@@ -232,12 +182,11 @@ namespace FastUI.Modules.Input
         }
 
 
-
         // ============================================================
         //  Constructor
         // ============================================================
 
-        public FuiTextBox2()
+        public FuiTextBox()
         {
             Size = new Size(200, 40);
             Font = new Font("Segoe UI", 10f);
@@ -262,12 +211,11 @@ namespace FastUI.Modules.Input
 
 
         // ============================================================
-        //  Initialization Helpers
+        //  Initialization
         // ============================================================
 
         private void InitializeCaretTimer()
         {
-            // Controls caret blinking animation
             _caretTimer = new System.Windows.Forms.Timer { Interval = 500 };
             _caretTimer.Tick += (s, e) =>
             {
@@ -282,7 +230,6 @@ namespace FastUI.Modules.Input
 
         private void InitializeAnimationTimer()
         {
-            // Handles hover/focus lerp animation
             _animTimer = new System.Windows.Forms.Timer { Interval = 15 };
             _animTimer.Tick += (s, e) => UpdateAnimation();
             _animTimer.Start();
@@ -290,9 +237,8 @@ namespace FastUI.Modules.Input
 
         private void InitializeLeaveTimer()
         {
-            // Delays focus removal when cursor exits control
             _leaveTimer = new System.Windows.Forms.Timer();
-            _leaveTimer.Interval = 1000;
+            _leaveTimer.Interval = 3000;
 
             _leaveTimer.Tick += (s, e) =>
             {
@@ -313,7 +259,6 @@ namespace FastUI.Modules.Input
         }
 
 
-
         // ============================================================
         //  Animation Logic
         // ============================================================
@@ -325,7 +270,6 @@ namespace FastUI.Modules.Input
             float hoverTarget = _isHovered ? 1 : 0;
             float focusTarget = _isFocused ? 1 : 0;
 
-            // Hover animation
             if (Math.Abs(_hoverLerp - hoverTarget) > 0.01f)
             {
                 _hoverLerp += (_isHovered ? _hoverSpeed : -_hoverSpeed);
@@ -333,7 +277,6 @@ namespace FastUI.Modules.Input
                 changed = true;
             }
 
-            // Focus animation
             if (Math.Abs(_focusLerp - focusTarget) > 0.01f)
             {
                 _focusLerp += (_isFocused ? _focusSpeed : -_focusSpeed);
@@ -344,7 +287,6 @@ namespace FastUI.Modules.Input
             if (changed)
                 Invalidate();
         }
-
 
 
         // ============================================================
@@ -386,7 +328,6 @@ namespace FastUI.Modules.Input
             Invalidate();
             base.OnMouseDown(e);
         }
-
 
 
         // ============================================================
@@ -461,6 +402,7 @@ namespace FastUI.Modules.Input
             base.OnKeyPress(e);
         }
 
+
         protected override void OnGotFocus(EventArgs e)
         {
             _isFocused = true;
@@ -481,7 +423,6 @@ namespace FastUI.Modules.Input
             Invalidate();
             base.OnLostFocus(e);
         }
-
 
 
         // ============================================================
@@ -505,34 +446,46 @@ namespace FastUI.Modules.Input
                 Font,
                 ForeColor,
                 false,
-                FastUI.Modules.Buttons.FuiButton.FastTextAlign.Left,
+                FastTextAlign.Left,
                 Point.Empty
             );
 
-            // -------------------
-            // Draw text or placeholder
-            // -------------------
+            // -----------------------------------------
+            //    Draw text according to alignment
+            // -----------------------------------------
+
+            StringFormat sf = new StringFormat();
+            sf.LineAlignment = StringAlignment.Center;
+
+            if (_textAlign == FastTextAlign.Left) sf.Alignment = StringAlignment.Near;
+            else if (_textAlign == FastTextAlign.Center) sf.Alignment = StringAlignment.Center;
+            else if (_textAlign == FastTextAlign.Right) sf.Alignment = StringAlignment.Far;
+
+            Rectangle textArea = new Rectangle(_textOffset.X, _textOffset.Y, Width - (_textOffset.X * 2), Height);
 
             string txt = _showingPlaceholder ? _placeholder : _textValue;
             Color txtColor = _showingPlaceholder ? PlaceholderColor : TextColor;
 
-            TextRenderer.DrawText(
-                e.Graphics,
+            e.Graphics.DrawString(
                 txt,
                 Font,
-                new Rectangle(_textOffset.X, 0, Width, Height),
-                txtColor,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                new SolidBrush(txtColor),
+                textArea,
+                sf
             );
 
-            // -------------------
-            // Draw caret
-            // -------------------
+
+            // -----------------------------------------
+            // Draw caret (shifted +4px from border)
+            // -----------------------------------------
 
             if (_isFocused && !_showingPlaceholder && _caretVisible)
             {
+                int caretOffset = 6; // ← إبعاد بسيط عن بداية النص
+
                 int caretX = _textOffset.X +
-                             TextRenderer.MeasureText(_textValue.Substring(0, _caretIndex), Font).Width - 2;
+                             TextRenderer.MeasureText(_textValue.Substring(0, _caretIndex), Font).Width +
+                             caretOffset;
 
                 using (Pen p = new Pen(ForeColor, 1))
                     e.Graphics.DrawLine(p, caretX, 8, caretX, Height - 8);
@@ -540,9 +493,8 @@ namespace FastUI.Modules.Input
         }
 
 
-
         // ============================================================
-        //  Utility Methods
+        //  Utility
         // ============================================================
 
         private int GetCaretIndexFromPoint(int mouseX)
@@ -565,4 +517,5 @@ namespace FastUI.Modules.Input
                 (int)(a.B + (b.B - a.B) * t));
         }
     }
+
 }

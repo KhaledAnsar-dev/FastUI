@@ -1,10 +1,15 @@
-﻿using System;
+﻿using FastUI.FastUILibrary.Core.Rendering;
+using System;
+using FastUI.FastUILibrary.Core;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using FastUI.Core.Rendering;
 
-namespace FastUI.Modules.Buttons
+namespace FastUI.FastUILibrary.Components
 {
     public class FuiButton : Control
     {
@@ -13,7 +18,7 @@ namespace FastUI.Modules.Buttons
         // ============================================================
 
         // Renderer used to draw button visuals (background, border, text)
-        private FastButtonRenderer _renderer = new FastButtonRenderer();
+        private FastShapeRenderer _renderer = new FastShapeRenderer();
 
         // Hover animation state
         private bool _isHovered = false;
@@ -136,7 +141,6 @@ namespace FastUI.Modules.Buttons
             set { _textOffset.Y = value; Invalidate(); }
         }
 
-        public enum FastTextAlign { Left, Center, Right }
 
         [Browsable(true)]
         [Category("Fast A - Text")]
@@ -374,4 +378,5 @@ namespace FastUI.Modules.Buttons
             base.OnMouseUp(e);
         }
     }
+
 }

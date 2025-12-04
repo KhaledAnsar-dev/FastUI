@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
+using System.Linq;
+using System.Text;
 
-namespace FastUI.Core.Rendering
+namespace FastUI.FastUILibrary.Core.Rendering
 {
     /// <summary>
     /// Renders FastUI buttons using high-quality smoothing, rounded corners,
     /// border simulation, and supersampling for crisp edges.
     /// Now supports text alignment + text offset.
     /// </summary>
-    public class FastButtonRenderer
+    public class FastShapeRenderer
     {
         public Color BackgroundColor { get; set; } = Color.White;
         public Color BorderColor { get; set; } = Color.Black;
@@ -31,7 +32,7 @@ namespace FastUI.Core.Rendering
             Font font,
             Color textColor,
             bool designerMode,
-            FastUI.Modules.Buttons.FuiButton.FastTextAlign textAlign,
+            FastTextAlign textAlign,
             Point textOffset)
         {
             int w = bounds.Width * SSAA;
@@ -108,16 +109,16 @@ namespace FastUI.Core.Rendering
 
             switch (textAlign)
             {
-                case FastUI.Modules.Buttons.FuiButton.FastTextAlign.Left:
+                case FastTextAlign.Left:
                     flags |= TextFormatFlags.Left;
                     break;
 
-                case FastUI.Modules.Buttons.FuiButton.FastTextAlign.Right:
+                case FastTextAlign.Right:
                     flags |= TextFormatFlags.Right;
                     break;
 
                 default:
-                case FastUI.Modules.Buttons.FuiButton.FastTextAlign.Center:
+                case FastTextAlign.Center:
                     flags |= TextFormatFlags.HorizontalCenter;
                     break;
             }

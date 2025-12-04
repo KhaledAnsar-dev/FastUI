@@ -30,4 +30,7 @@ namespace FastUI.FastUILibrary.Core
         Allowed,
         NotAllowed
     }
+
+    public enum FastTextAlign { Left, Center, Right }
+
 }

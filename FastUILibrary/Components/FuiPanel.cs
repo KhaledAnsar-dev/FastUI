@@ -1,10 +1,15 @@
-﻿using System;
+﻿using FastUI.Core.Rendering;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using FastUI.Core.Rendering;
 
-namespace FastUI.Modules.Panels
+namespace FastUI.FastUILibrary.Components
 {
     public class FuiPanel : Panel
     {
@@ -216,4 +221,5 @@ namespace FastUI.Modules.Panels
             }
         }
     }
+
 }

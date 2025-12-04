@@ -8,21 +8,40 @@ namespace FastUI.Modules.Buttons
 {
     public class FuiButton : Control
     {
+        // ============================================================
+        //  Fields
+        // ============================================================
+
+        // Renderer used to draw button visuals (background, border, text)
         private FastButtonRenderer _renderer = new FastButtonRenderer();
 
+        // Hover animation state
         private bool _isHovered = false;
         private float _hoverLerp = 0f;
-        private readonly float _hoverSpeed = 0.15f;
+        private readonly float _hoverSpeed = 0.5f;
 
+        // Press animation state
         private bool _isPressed = false;
         private float _pressLerp = 0f;
         private readonly float _pressSpeed = 0.25f;
 
+        // Offset for fine-tuning text position
         private Point _textOffset = Point.Empty;
+
+        // Hover text color
         private Color _hoverTextColor = Color.Black;
 
+        // Normal state colors
         private Color _normalColor = Color.White;
         private Color _borderNormalColor = Color.Gray;
+
+        // Animation timer (hover + press transitions)
+        private System.Windows.Forms.Timer _animTimer;
+
+
+        // ============================================================
+        //  Constructor
+        // ============================================================
 
         public FuiButton()
         {
@@ -43,18 +62,34 @@ namespace FastUI.Modules.Buttons
 
             _renderer.BackgroundColor = _normalColor;
             _renderer.BorderColor = _borderNormalColor;
+
+            // Initialize animation timer
+            if (!IsInDesigner)
+            {
+                _animTimer = new System.Windows.Forms.Timer();
+                _animTimer.Interval = 15;
+                _animTimer.Tick += (s, e) => UpdateAnimation();
+                _animTimer.Start();
+            }
         }
 
+        // Determines whether control is inside Visual Studio Designer
         private bool IsInDesigner =>
             DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
-        // =====================================================================
-        // FastUI – General
-        // =====================================================================
-        #region FastUI – General
+
+
+        // ============================================================
+        //  Properties (Organized A → G)
+        // ============================================================
+
+
+        // ----------------------------
+        // A) TEXT
+        // ----------------------------
 
         [Browsable(true)]
-        [Category("FastUI – General")]
+        [Category("Fast A - Text")]
         public override string Text
         {
             get => base.Text;
@@ -62,69 +97,7 @@ namespace FastUI.Modules.Buttons
         }
 
         [Browsable(true)]
-        [Category("FastUI – General")]
-        public int ControlWidth
-        {
-            get => Width;
-            set { Width = value; Invalidate(); }
-        }
-
-        [Browsable(true)]
-        [Category("FastUI – General")]
-        public int ControlHeight
-        {
-            get => Height;
-            set { Height = value; Invalidate(); }
-        }
-
-        #endregion
-
-        // =====================================================================
-        // FastUI – Style
-        // =====================================================================
-        #region FastUI – Style
-
-        [Browsable(true)]
-        [Category("FastUI – Style")]
-        public Color FillColor
-        {
-            get => _normalColor;
-            set { _normalColor = value; Invalidate(); }
-        }
-
-        [Browsable(true)]
-        [Category("FastUI – Style")]
-        public Color BorderColor
-        {
-            get => _borderNormalColor;
-            set { _borderNormalColor = value; Invalidate(); }
-        }
-
-        [Browsable(true)]
-        [Category("FastUI – Style")]
-        public float BorderWidth
-        {
-            get => _renderer.BorderThickness;
-            set { _renderer.BorderThickness = value; Invalidate(); }
-        }
-
-        [Browsable(true)]
-        [Category("FastUI – Style")]
-        public float CornerRadius
-        {
-            get => _renderer.Radius;
-            set { _renderer.Radius = Math.Max(0, value); Invalidate(); }
-        }
-
-        #endregion
-
-        // =====================================================================
-        // FastUI – Text
-        // =====================================================================
-        #region FastUI – Text
-
-        [Browsable(true)]
-        [Category("FastUI – Text")]
+        [Category("Fast A - Text")]
         public Color FontColor
         {
             get => ForeColor;
@@ -132,7 +105,7 @@ namespace FastUI.Modules.Buttons
         }
 
         [Browsable(true)]
-        [Category("FastUI – Text")]
+        [Category("Fast A - Text")]
         public float FontSize
         {
             get => Font.Size;
@@ -140,7 +113,7 @@ namespace FastUI.Modules.Buttons
         }
 
         [Browsable(true)]
-        [Category("FastUI – Text")]
+        [Category("Fast A - Text")]
         public Font MoreFontSettings
         {
             get => Font;
@@ -148,7 +121,7 @@ namespace FastUI.Modules.Buttons
         }
 
         [Browsable(true)]
-        [Category("FastUI – Text")]
+        [Category("Fast A - Text")]
         public int MoveTextHorizontal
         {
             get => _textOffset.X;
@@ -156,7 +129,7 @@ namespace FastUI.Modules.Buttons
         }
 
         [Browsable(true)]
-        [Category("FastUI – Text")]
+        [Category("Fast A - Text")]
         public int MoveTextVertical
         {
             get => _textOffset.Y;
@@ -166,49 +139,163 @@ namespace FastUI.Modules.Buttons
         public enum FastTextAlign { Left, Center, Right }
 
         [Browsable(true)]
-        [Category("FastUI – Text")]
+        [Category("Fast A - Text")]
         public FastTextAlign TextPosition { get; set; } = FastTextAlign.Center;
 
-        #endregion
 
-        // =====================================================================
-        // FastUI – Interaction
-        // =====================================================================
-        #region FastUI – Interaction
+
+        // ----------------------------
+        // B) LAYOUT
+        // ----------------------------
 
         [Browsable(true)]
-        [Category("FastUI – Interaction")]
+        [Category("Fast B - Layout")]
+        public int ControlWidth
+        {
+            get => Width;
+            set { Width = value; Invalidate(); }
+        }
+
+        [Browsable(true)]
+        [Category("Fast B - Layout")]
+        public int ControlHeight
+        {
+            get => Height;
+            set { Height = value; Invalidate(); }
+        }
+
+
+
+        // ----------------------------
+        // C) COLORS – NORMAL
+        // ----------------------------
+
+        [Browsable(true)]
+        [Category("Fast C - Colors Normal")]
+        public Color FillColor
+        {
+            get => _normalColor;
+            set { _normalColor = value; Invalidate(); }
+        }
+
+        [Browsable(true)]
+        [Category("Fast C - Colors Normal")]
+        public Color BorderColor
+        {
+            get => _borderNormalColor;
+            set { _borderNormalColor = value; Invalidate(); }
+        }
+
+
+
+        // ----------------------------
+        // D) COLORS – HOVER
+        // ----------------------------
+
+        [Browsable(true)]
+        [Category("Fast D - Colors Hover")]
         public Color HoverFillColor { get; set; } = Color.FromArgb(240, 240, 240);
 
         [Browsable(true)]
-        [Category("FastUI – Interaction")]
+        [Category("Fast D - Colors Hover")]
         public Color HoverBorder { get; set; } = Color.Black;
 
         [Browsable(true)]
-        [Category("FastUI – Interaction")]
+        [Category("Fast D - Colors Hover")]
         public Color HoverTextColor
         {
             get => _hoverTextColor;
             set { _hoverTextColor = value; Invalidate(); }
         }
 
+
+
+        // ----------------------------
+        // E) COLORS – PRESS
+        // ----------------------------
+
         [Browsable(true)]
-        [Category("FastUI – Interaction")]
+        [Category("Fast E - Colors Press")]
         public Color PressFillColor { get; set; } = Color.FromArgb(220, 220, 220);
 
         [Browsable(true)]
-        [Category("FastUI – Interaction")]
+        [Category("Fast E - Colors Press")]
         public Color PressBorderColor { get; set; } = Color.FromArgb(80, 80, 80);
 
         [Browsable(true)]
-        [Category("FastUI – Interaction")]
+        [Category("Fast E - Colors Press")]
         public int PressDepth { get; set; } = 1;
 
-        #endregion
 
-        // =====================================================================
-        // Hover + Press Animation
-        // =====================================================================
+
+        // ----------------------------
+        // F) STYLE
+        // ----------------------------
+
+        [Browsable(true)]
+        [Category("Fast F - Style")]
+        public float BorderWidth
+        {
+            get => _renderer.BorderThickness;
+            set { _renderer.BorderThickness = value; Invalidate(); }
+        }
+
+        [Browsable(true)]
+        [Category("Fast F - Style")]
+        public float CornerRadius
+        {
+            get => _renderer.Radius;
+            set { _renderer.Radius = value; Invalidate(); }
+        }
+
+
+
+        // ============================================================
+        //  Animation Logic
+        // ============================================================
+
+        private void UpdateAnimation()
+        {
+            bool needUpdate = false;
+
+            // Hover animation
+            if (_isHovered && _hoverLerp < 1f)
+            {
+                _hoverLerp += _hoverSpeed;
+                if (_hoverLerp > 1f) _hoverLerp = 1f;
+                needUpdate = true;
+            }
+            else if (!_isHovered && _hoverLerp > 0f)
+            {
+                _hoverLerp -= _hoverSpeed;
+                if (_hoverLerp < 0f) _hoverLerp = 0f;
+                needUpdate = true;
+            }
+
+            // Press animation
+            if (_isPressed && _pressLerp < 1f)
+            {
+                _pressLerp += _pressSpeed;
+                if (_pressLerp > 1f) _pressLerp = 1f;
+                needUpdate = true;
+            }
+            else if (!_isPressed && _pressLerp > 0f)
+            {
+                _pressLerp -= _pressSpeed;
+                if (_pressLerp < 0f) _pressLerp = 0f;
+                needUpdate = true;
+            }
+
+            if (needUpdate)
+                Invalidate();
+        }
+
+
+
+        // ============================================================
+        //  Color Interpolation
+        // ============================================================
+
         private Color LerpColor(Color a, Color b, float t)
         {
             return Color.FromArgb(
@@ -219,25 +306,20 @@ namespace FastUI.Modules.Buttons
             );
         }
 
+
+
+        // ============================================================
+        //  Painting
+        // ============================================================
+
         protected override void OnPaint(PaintEventArgs e)
         {
             bool designer = IsInDesigner;
 
-            if (!designer)
-            {
-                _hoverLerp = _isHovered
-                    ? Math.Min(1f, _hoverLerp + _hoverSpeed)
-                    : Math.Max(0f, _hoverLerp - _hoverSpeed);
-
-                _pressLerp = _isPressed
-                    ? Math.Min(1f, _pressLerp + _pressSpeed)
-                    : Math.Max(0f, _pressLerp - _pressSpeed);
-            }
-
-            var bg = LerpColor(_normalColor, HoverFillColor, _hoverLerp);
+            Color bg = LerpColor(_normalColor, HoverFillColor, _hoverLerp);
             bg = LerpColor(bg, PressFillColor, _pressLerp);
 
-            var border = LerpColor(_borderNormalColor, HoverBorder, _hoverLerp);
+            Color border = LerpColor(_borderNormalColor, HoverBorder, _hoverLerp);
             border = LerpColor(border, PressBorderColor, _pressLerp);
 
             Point finalOffset = new Point(
@@ -260,10 +342,13 @@ namespace FastUI.Modules.Buttons
                 TextPosition,
                 finalOffset
             );
-
-            if (!designer)
-                Invalidate();
         }
+
+
+
+        // ============================================================
+        //  Mouse Events
+        // ============================================================
 
         protected override void OnMouseEnter(EventArgs e)
         {

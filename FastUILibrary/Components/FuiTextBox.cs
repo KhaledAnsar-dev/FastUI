@@ -201,6 +201,9 @@ namespace FastUI.FastUILibrary.Components
                 true
             );
 
+            // Cursor
+            this.Cursor = Cursors.IBeam;
+
             BackColor = Color.Transparent;
             TabStop = true;
 
@@ -481,7 +484,7 @@ namespace FastUI.FastUILibrary.Components
 
             if (_isFocused && !_showingPlaceholder && _caretVisible)
             {
-                int caretOffset = 6; // ← إبعاد بسيط عن بداية النص
+                int caretOffset = _textValue.Length == 0 ? 6 : -5;
 
                 int caretX = _textOffset.X +
                              TextRenderer.MeasureText(_textValue.Substring(0, _caretIndex), Font).Width +

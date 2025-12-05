@@ -160,6 +160,9 @@ namespace FastUI.FastUILibrary.Components
                      ControlStyles.Selectable,
                      true);
 
+            // Cursor
+            this.Cursor = Cursors.Hand;
+
             _animTimer = new System.Windows.Forms.Timer
             {
                 Interval = 16

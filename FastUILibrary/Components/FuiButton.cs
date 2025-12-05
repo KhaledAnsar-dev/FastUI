@@ -62,6 +62,9 @@ namespace FastUI.FastUILibrary.Components
                 true
             );
 
+            // Cursor
+            this.Cursor = Cursors.Hand;
+
             BackColor = Color.Transparent;
             UpdateStyles();
 

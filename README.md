@@ -38,6 +38,7 @@ It is open-source, continuously evolving, and shaped to make desktop UI developm
 
 FastUI is still in active development, but it already includes:
 
+- **FuiTable**
 - **FuiButton**
 - **FuiTextBox**
 - **FuiComboBox**

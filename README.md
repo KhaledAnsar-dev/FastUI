@@ -1,4 +1,4 @@
-![FastUI Model](Assets/FastUIModel2.png)
+![FastUI Model](Assets/FastUIModel3.png)
 
 ---
 

@@ -7,14 +7,6 @@ using System.Threading.Tasks;
 namespace FastUI.FastUILibrary.Core
 {
     
-    public enum FastEnumInputType
-    {
-        Text,
-        Email,
-        PhoneDZ,
-        Integer,
-        Decimal
-    }
     public enum FastTextAlign { Left, Center, Right }
     public enum FastTableScroll
     {
@@ -23,5 +15,11 @@ namespace FastUI.FastUILibrary.Core
         Horizontal,
         Both
     }
-
+    public enum FastInputType
+    {
+        Any,
+        IntegerOnly,
+        DecimalOnly,
+        LettersOnly
+    }
 }

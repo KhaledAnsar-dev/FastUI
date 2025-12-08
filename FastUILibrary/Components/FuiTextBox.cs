@@ -1,26 +1,22 @@
 ﻿using FastUI.FastUILibrary.Core.Rendering;
+using FastUI.FastUILibrary.Core.Rendering;
 using System;
 using FastUI.FastUILibrary.Core;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FastUI.FastUILibrary.Components
 {
     public class FuiTextBox : Control
     {
+
         // ============================================================
         //  Fields
         // ============================================================
 
         private FastShapeRenderer _renderer = new FastShapeRenderer();
 
-        private bool _leftControl = false;
-        private System.Windows.Forms.Timer _leaveTimer;
         private bool _isHovered = false;
         private bool _isFocused = false;
 
@@ -31,7 +27,7 @@ namespace FastUI.FastUILibrary.Components
         private readonly float _focusSpeed = 0.32f;
 
         private string _textValue = "";
-        private string _placeholder = "Placeholder";
+        private string _placeholder = "Enter text...";
         private bool _showingPlaceholder = true;
 
         private Point _textOffset = new Point(8, 0);
@@ -64,13 +60,40 @@ namespace FastUI.FastUILibrary.Components
         [Category("Fast B - Placeholder")]
         public Color PlaceholderColor { get; set; } = Color.Gray;
 
+        // ============================================================
+        //  NEW: Input Type Property + AllowSpace + Auto Placeholder
+        // ============================================================
+
+        private FastInputType _inputType = FastInputType.Any;
+
+        [Category("Fast G - Input Rules")]
+        [Description("Defines what type of characters are allowed.")]
+        public FastInputType InputType
+        {
+            get => _inputType;
+            set
+            {
+                _inputType = value;
+                UpdatePlaceholderByInputType();
+                Invalidate();
+            }
+        }
+
+        private bool _allowSpace = true;
+
+        [Category("Fast G - Input Rules")]
+        [Description("Determines whether the user can type space.")]
+        public bool AllowSpace
+        {
+            get => _allowSpace;
+            set => _allowSpace = value;
+        }
 
         // ============================================================
         //  Properties
         // ============================================================
 
         [Category("Fast A - Text")]
-        [Description("Gets or sets the text inside the FastTextBox.")]
         public string FastText
         {
             get => _textValue;
@@ -181,7 +204,6 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.BorderThickness = value; Invalidate(); }
         }
 
-
         // ============================================================
         //  Constructor
         // ============================================================
@@ -201,17 +223,13 @@ namespace FastUI.FastUILibrary.Components
                 true
             );
 
-            // Cursor
-            this.Cursor = Cursors.IBeam;
-
+            Cursor = Cursors.IBeam;
             BackColor = Color.Transparent;
             TabStop = true;
 
             InitializeCaretTimer();
             InitializeAnimationTimer();
-            InitializeLeaveTimer();
         }
-
 
         // ============================================================
         //  Initialization
@@ -237,30 +255,6 @@ namespace FastUI.FastUILibrary.Components
             _animTimer.Tick += (s, e) => UpdateAnimation();
             _animTimer.Start();
         }
-
-        private void InitializeLeaveTimer()
-        {
-            _leaveTimer = new System.Windows.Forms.Timer();
-            _leaveTimer.Interval = 3000;
-
-            _leaveTimer.Tick += (s, e) =>
-            {
-                if (_leftControl)
-                {
-                    _isFocused = false;
-                    _caretVisible = false;
-                    _selectionLength = 0;
-
-                    if (FindForm() != null)
-                        FindForm().ActiveControl = null;
-
-                    Invalidate();
-                }
-
-                _leaveTimer.Stop();
-            };
-        }
-
 
         // ============================================================
         //  Animation Logic
@@ -291,26 +285,19 @@ namespace FastUI.FastUILibrary.Components
                 Invalidate();
         }
 
-
         // ============================================================
         //  Mouse Events
         // ============================================================
 
         protected override void OnMouseEnter(EventArgs e)
         {
-            _leftControl = false;
-            _leaveTimer.Stop();
             _isHovered = true;
-
             base.OnMouseEnter(e);
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            _leftControl = true;
-            _leaveTimer.Start();
             _isHovered = false;
-
             base.OnMouseLeave(e);
         }
 
@@ -331,7 +318,6 @@ namespace FastUI.FastUILibrary.Components
             Invalidate();
             base.OnMouseDown(e);
         }
-
 
         // ============================================================
         //  Keyboard Events
@@ -386,25 +372,67 @@ namespace FastUI.FastUILibrary.Components
 
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar))
-            {
-                if (_selectionLength > 0)
-                {
-                    _textValue = _textValue.Remove(_selectionStart, _selectionLength);
-                    _caretIndex = _selectionStart;
-                    _selectionLength = 0;
-                }
+            char c = e.KeyChar;
 
-                _textValue = _textValue.Insert(_caretIndex, e.KeyChar.ToString());
-                _caretIndex++;
+            if (char.IsControl(c))
+            {
+                base.OnKeyPress(e);
+                return;
             }
+
+            if (c == ' ')
+            {
+                if (_allowSpace)
+                {
+                    // allowed
+                }
+                else
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            switch (_inputType)
+            {
+                case FastInputType.IntegerOnly:
+                    if (!char.IsDigit(c)) { e.Handled = true; return; }
+                    break;
+
+                case FastInputType.DecimalOnly:
+                    if (!char.IsDigit(c) && c != '.') { e.Handled = true; return; }
+                    if (c == '.' && _textValue.Contains(".")) { e.Handled = true; return; }
+                    break;
+
+                case FastInputType.LettersOnly:
+                    if (!char.IsLetter(c) && c != ' ') { e.Handled = true; return; }
+                    break;
+            }
+
+            // ============================================================
+            //  ⭐ NEW: Prevent overflow (no multiline) by width
+            // ============================================================
+            if (!CanInsertChar(c))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (_selectionLength > 0)
+            {
+                _textValue = _textValue.Remove(_selectionStart, _selectionLength);
+                _caretIndex = _selectionStart;
+                _selectionLength = 0;
+            }
+
+            _textValue = _textValue.Insert(_caretIndex, c.ToString());
+            _caretIndex++;
 
             _showingPlaceholder = string.IsNullOrEmpty(_textValue);
 
             Invalidate();
             base.OnKeyPress(e);
         }
-
 
         protected override void OnGotFocus(EventArgs e)
         {
@@ -426,7 +454,6 @@ namespace FastUI.FastUILibrary.Components
             Invalidate();
             base.OnLostFocus(e);
         }
-
 
         // ============================================================
         //  Rendering
@@ -453,10 +480,6 @@ namespace FastUI.FastUILibrary.Components
                 Point.Empty
             );
 
-            // -----------------------------------------
-            //    Draw text according to alignment
-            // -----------------------------------------
-
             StringFormat sf = new StringFormat();
             sf.LineAlignment = StringAlignment.Center;
 
@@ -464,7 +487,8 @@ namespace FastUI.FastUILibrary.Components
             else if (_textAlign == FastTextAlign.Center) sf.Alignment = StringAlignment.Center;
             else if (_textAlign == FastTextAlign.Right) sf.Alignment = StringAlignment.Far;
 
-            Rectangle textArea = new Rectangle(_textOffset.X, _textOffset.Y, Width - (_textOffset.X * 2), Height);
+            Rectangle textArea =
+                new Rectangle(_textOffset.X, _textOffset.Y, Width - (_textOffset.X * 2), Height);
 
             string txt = _showingPlaceholder ? _placeholder : _textValue;
             Color txtColor = _showingPlaceholder ? PlaceholderColor : TextColor;
@@ -477,24 +501,38 @@ namespace FastUI.FastUILibrary.Components
                 sf
             );
 
-
-            // -----------------------------------------
-            // Draw caret (shifted +4px from border)
-            // -----------------------------------------
-
+            // ============================================================
+            //  ⭐ FIXED CARET POSITION — Accurate pixel-perfect caret + RTL Support
+            // ============================================================
             if (_isFocused && !_showingPlaceholder && _caretVisible)
             {
-                int caretOffset = _textValue.Length == 0 ? 6 : -5;
+                string beforeCaret = _textValue.Substring(0, _caretIndex);
 
-                int caretX = _textOffset.X +
-                             TextRenderer.MeasureText(_textValue.Substring(0, _caretIndex), Font).Width +
-                             caretOffset;
+                float textWidth = MeasureStringWidth(e.Graphics, beforeCaret, Font);
+                float totalWidth = MeasureStringWidth(e.Graphics, _textValue, Font);
+
+                int caretX = _textOffset.X; // default for LEFT
+
+                if (_textAlign == FastTextAlign.Left)
+                {
+                    caretX = _textOffset.X + (int)textWidth;
+                }
+                else if (_textAlign == FastTextAlign.Center)
+                {
+                    // center alignment calculation
+                    caretX = (Width / 2) - ((int)totalWidth / 2) + (int)textWidth;
+                }
+                else if (_textAlign == FastTextAlign.Right)
+                {
+                    // right alignment calculation
+                    caretX = Width - _textOffset.X - (int)totalWidth + (int)textWidth;
+                }
 
                 using (Pen p = new Pen(ForeColor, 1))
                     e.Graphics.DrawLine(p, caretX, 8, caretX, Height - 8);
             }
-        }
 
+        }
 
         // ============================================================
         //  Utility
@@ -504,7 +542,9 @@ namespace FastUI.FastUILibrary.Components
         {
             for (int i = 1; i <= _textValue.Length; i++)
             {
-                int width = TextRenderer.MeasureText(_textValue.Substring(0, i), Font).Width;
+                int width =
+                    (int)MeasureStringWidth(CreateGraphics(), _textValue.Substring(0, i), Font);
+
                 if (mouseX < width + _textOffset.X)
                     return i - 1;
             }
@@ -519,6 +559,66 @@ namespace FastUI.FastUILibrary.Components
                 (int)(a.G + (b.G - a.G) * t),
                 (int)(a.B + (b.B - a.B) * t));
         }
-    }
 
+        // ============================================================
+        //  ⭐ NEW: Accurate Text Width Calculation
+        // ============================================================
+
+        private float MeasureStringWidth(Graphics g, string text, Font font)
+        {
+            if (string.IsNullOrEmpty(text))
+                return 0f;
+
+            SizeF size = g.MeasureString(text, font, int.MaxValue,
+                StringFormat.GenericTypographic);
+
+            return size.Width;
+        }
+
+        // ============================================================
+        //  ⭐ NEW: Check if char fits in available width
+        // ============================================================
+        private bool CanInsertChar(char c)
+        {
+            string temp = _textValue;
+
+            if (_selectionLength > 0)
+                temp = temp.Remove(_selectionStart, _selectionLength);
+
+            if (_caretIndex < 0) _caretIndex = 0;
+            if (_caretIndex > temp.Length) _caretIndex = temp.Length;
+
+            temp = temp.Insert(_caretIndex, c.ToString());
+
+            using (Graphics g = CreateGraphics())
+            {
+                float textWidth = MeasureStringWidth(g, temp, Font);
+
+                int maxWidth = Width - (_textOffset.X * 2) - 4; // small padding
+
+                return textWidth <= maxWidth;
+            }
+        }
+
+        // ============================================================
+        //  AUTO PLACEHOLDER LOGIC
+        // ============================================================
+
+        private void UpdatePlaceholderByInputType()
+        {
+            _placeholder = GetDefaultPlaceholder();
+        }
+
+        private string GetDefaultPlaceholder()
+        {
+            return _inputType switch
+            {
+                FastInputType.Any => "Enter text...",
+                FastInputType.IntegerOnly => "123",
+                FastInputType.DecimalOnly => "3.14",
+                FastInputType.LettersOnly => "Hello",
+                _ => "Enter text..."
+            };
+        }
+    }
 }

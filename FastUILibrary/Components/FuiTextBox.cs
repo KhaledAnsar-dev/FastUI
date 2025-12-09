@@ -1,5 +1,4 @@
 ﻿using FastUI.FastUILibrary.Core.Rendering;
-using FastUI.FastUILibrary.Core.Rendering;
 using System;
 using FastUI.FastUILibrary.Core;
 using System.ComponentModel;
@@ -33,13 +32,13 @@ namespace FastUI.FastUILibrary.Components
         private Point _textOffset = new Point(8, 0);
 
         private Color _normalFill = Color.White;
-        private Color _borderNormal = Color.Gray;
+        protected Color _borderNormal = Color.Gray;
 
         private Color _hoverFill = Color.FromArgb(245, 245, 245);
         private Color _hoverBorder = Color.Black;
 
         private Color _focusFill = Color.White;
-        private Color _focusBorder = Color.DodgerBlue;
+        protected Color _focusBorder = Color.DodgerBlue;
 
         private FastTextAlign _textAlign = FastTextAlign.Left;
 
@@ -54,40 +53,15 @@ namespace FastUI.FastUILibrary.Components
         private bool _mouseDown = false;
         private int _mouseDownIndex = 0;
 
+        private bool _allowSpace = true;
+        private FastInputType _inputType = FastInputType.Any;
+
         [Category("Fast A - Text")]
         public Color TextColor { get; set; } = Color.Black;
 
         [Category("Fast B - Placeholder")]
         public Color PlaceholderColor { get; set; } = Color.Gray;
 
-        // ============================================================
-        //  NEW: Input Type Property + AllowSpace + Auto Placeholder
-        // ============================================================
-
-        private FastInputType _inputType = FastInputType.Any;
-
-        [Category("Fast G - Input Rules")]
-        [Description("Defines what type of characters are allowed.")]
-        public FastInputType InputType
-        {
-            get => _inputType;
-            set
-            {
-                _inputType = value;
-                UpdatePlaceholderByInputType();
-                Invalidate();
-            }
-        }
-
-        private bool _allowSpace = true;
-
-        [Category("Fast G - Input Rules")]
-        [Description("Determines whether the user can type space.")]
-        public bool AllowSpace
-        {
-            get => _allowSpace;
-            set => _allowSpace = value;
-        }
 
         // ============================================================
         //  Properties
@@ -204,6 +178,26 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.BorderThickness = value; Invalidate(); }
         }
 
+        [Category("Fast G - Input Rules")]
+        [Description("Defines what type of characters are allowed.")]
+        public FastInputType InputType
+        {
+            get => _inputType;
+            set
+            {
+                _inputType = value;
+                UpdatePlaceholderByInputType();
+                Invalidate();
+            }
+        }
+
+        [Category("Fast G - Input Rules")]
+        [Description("Determines whether the user can type space.")]
+        public bool AllowSpace
+        {
+            get => _allowSpace;
+            set => _allowSpace = value;
+        }
         // ============================================================
         //  Constructor
         // ============================================================

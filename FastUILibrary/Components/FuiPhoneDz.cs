@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastUI.FastUILibrary.Core;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text.RegularExpressions;
@@ -7,152 +8,61 @@ using System.Windows.Forms;
 namespace FastUI.FastUILibrary.Components
 {
     /// <summary>
-    /// A specialized FastUI TextBox designed for Algerian phone numbers.
+    /// A FastUI validated textbox specialized for Algerian phone numbers.
     /// Supports:
-    /// - Required field enforcement
-    /// - Regex-based phone validation (05/06/07 + 8 digits)
-    /// - Automatic visual feedback (red border on invalid input)
+    /// - Required validation
+    /// - Algerian mobile format: 05 / 06 / 07 + 8 digits
+    /// - Automatic visual feedback via FuiValidatedTextBox
     /// </summary>
-    public class FuiPhoneDz : FuiTextBox
+    public class FuiPhoneDz : FuiValidatedTextBox
     {
-        // ============================================================
-        //  Fields
-        // ============================================================
-
-        private Color _originalBorderColor;
-        private Color _originalFocusBorderColor;
-
-        /// <summary>
-        /// Indicates whether the current phone value is valid.
-        /// </summary>
-        public bool IsValid { get; private set; } = false;
-
-
-        // ============================================================
-        //  Properties
-        // ============================================================
-
-        /// <summary>
-        /// If true, the field cannot lose focus until the value is valid.
-        /// </summary>
-        [Category("Fast Validation")]
-        public bool Required { get; set; } = false;
-
-
         // ============================================================
         //  Constructor
         // ============================================================
 
         public FuiPhoneDz()
         {
-            Placeholder = "06 12 34 56 78";
+            // Only digits should be allowed for DZ phone numbers
+            InputType = FastInputType.IntegerOnly;
 
-            _originalBorderColor = BorderColor;
-            _originalFocusBorderColor = FocusBorderColor;
-
-            CausesValidation = true;
+            // Default placeholder to guide user input
+            Placeholder = "05xxxxxxxx";
         }
 
 
         // ============================================================
-        //  Public API
+        //  Validation Override
         // ============================================================
 
         /// <summary>
-        /// Performs validation and applies visual feedback.
-        /// Returns true if the phone number is valid.
+        /// Validates required state + Algerian phone number format.
         /// </summary>
-        public bool Validate()
+        public override bool Validate()
         {
-            bool result = ValidateInternal();
-            ApplyValidationStyle(result);
-            return result;
-        }
+            string txt = FastText.Trim();
 
-
-        // ============================================================
-        //  Internal Logic
-        // ============================================================
-
-        /// <summary>
-        /// Validates Algerian phone numbers (05/06/07 + 8 digits).
-        /// </summary>
-        private bool ValidateInternal()
-        {
-            if (string.IsNullOrWhiteSpace(FastText))
+            // Required field check
+            if (Required && txt == "")
+            {
+                ErrorMessage = "Phone number required.";
+                ApplyInvalidStyle();
                 return false;
-
-            // Remove spaces to accept user formatting
-            string raw = FastText.Replace(" ", "");
-
-            return Regex.IsMatch(raw, @"^(05|06|07)[0-9]{8}$");
-        }
-
-        /// <summary>
-        /// Applies validation styling (red when invalid, original when valid).
-        /// </summary>
-        private void ApplyValidationStyle(bool ok)
-        {
-            IsValid = ok;
-
-            if (ok)
-            {
-                BorderColor = _originalBorderColor;
-                FocusBorderColor = _originalFocusBorderColor;
-            }
-            else
-            {
-                BorderColor = Color.Red;
-                FocusBorderColor = Color.Red;
             }
 
-            Invalidate();
-        }
+            // Algerian mobile format:
+            // 05 / 06 / 07 followed by 8 digits
+            bool ok = Regex.IsMatch(txt, @"^(05|06|07)[0-9]{8}$");
 
-
-        // ============================================================
-        //  Required Field Behavior
-        // ============================================================
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            base.OnKeyUp(e);
-
-            // نزيل أي حرف غير رقم
-            string filtered = new string(FastText.Where(char.IsDigit).ToArray());
-
-            if (filtered != FastText)
+            if (!ok)
             {
-                FastText = filtered;
-                Invalidate();
+                ErrorMessage = "Invalid Algerian phone number.";
+                ApplyInvalidStyle();
+                return false;
             }
-        }
 
-        protected override void OnValidating(CancelEventArgs e)
-        {
-            bool result = ValidateInternal();
-            ApplyValidationStyle(result);
-
-            if (Required && !result)
-                e.Cancel = true;
-
-            base.OnValidating(e);
-        }
-
-
-        // ============================================================
-        //  Focus Behavior
-        // ============================================================
-
-        protected override void OnGotFocus(EventArgs e)
-        {
-            base.OnGotFocus(e);
-
-            if (!IsValid && Required)
-            {
-                BorderColor = Color.Red;
-                FocusBorderColor = Color.Red;
-                Invalidate();
-            }
+            // If valid → restore original styling
+            ApplyValidStyle();
+            return true;
         }
     }
 }

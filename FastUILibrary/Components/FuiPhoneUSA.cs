@@ -8,25 +8,26 @@ using System.Windows.Forms;
 namespace FastUI.FastUILibrary.Components
 {
     /// <summary>
-    /// A FastUI validated email input field.
-    /// Adds:
-    /// - Required validation
-    /// - Email format validation (Regex)
-    /// - Automatic styling feedback via FuiValidatedTextBox
+    /// A FastUI validated textbox specialized for US phone numbers.
+    /// Supports:
+    /// - Required field validation
+    /// - North American Numbering Plan rules:
+    ///     Must be 10 digits, cannot start with 0 or 1
+    /// - Automatic red border feedback via FuiValidatedTextBox
     /// </summary>
-    public class FuiEmail : FuiValidatedTextBox
+    public class FuiPhoneUSA : FuiValidatedTextBox
     {
         // ============================================================
         //  Constructor
         // ============================================================
 
-        public FuiEmail()
+        public FuiPhoneUSA()
         {
-            // Email accepts any characters; validation is regex-based
-            InputType = FastInputType.Any;
+            // Only numeric characters are permitted for US phone numbers
+            InputType = FastInputType.IntegerOnly;
 
-            // Default placeholder
-            Placeholder = "example@mail.com";
+            // Placeholder for standard 10-digit US format
+            Placeholder = "1234567890";
         }
 
 
@@ -35,7 +36,10 @@ namespace FastUI.FastUILibrary.Components
         // ============================================================
 
         /// <summary>
-        /// Validates required state + email format.
+        /// Validates required state + US phone number format.
+        /// NANP rules:
+        /// - Must be 10 digits
+        /// - First digit must be 2–9
         /// </summary>
         public override bool Validate()
         {
@@ -44,22 +48,22 @@ namespace FastUI.FastUILibrary.Components
             // Required field check
             if (Required && txt == "")
             {
-                ErrorMessage = "Email is required.";
+                ErrorMessage = "Phone required.";
                 ApplyInvalidStyle();
                 return false;
             }
 
-            // Email format validation
-            bool ok = Regex.IsMatch(txt, @"^[^\s@]+@[^\s@]+\.[^\s@]+$");
+            // US phone validation: 10 digits, cannot start with 0 or 1
+            bool ok = Regex.IsMatch(txt, @"^[2-9][0-9]{9}$");
 
             if (!ok)
             {
-                ErrorMessage = "Invalid email format.";
+                ErrorMessage = "Invalid US phone number.";
                 ApplyInvalidStyle();
                 return false;
             }
 
-            // If valid → restore original styling
+            // Valid input → restore normal style
             ApplyValidStyle();
             return true;
         }

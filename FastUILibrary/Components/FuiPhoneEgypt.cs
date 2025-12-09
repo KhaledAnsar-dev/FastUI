@@ -8,25 +8,25 @@ using System.Windows.Forms;
 namespace FastUI.FastUILibrary.Components
 {
     /// <summary>
-    /// A FastUI validated email input field.
-    /// Adds:
+    /// A FastUI validated textbox specialized for Egyptian phone numbers.
+    /// Supports:
     /// - Required validation
-    /// - Email format validation (Regex)
-    /// - Automatic styling feedback via FuiValidatedTextBox
+    /// - Egyptian mobile prefixes: 010 / 011 / 012 / 015
+    /// - Automatic visual feedback via FuiValidatedTextBox
     /// </summary>
-    public class FuiEmail : FuiValidatedTextBox
+    public class FuiPhoneEgypt : FuiValidatedTextBox
     {
         // ============================================================
         //  Constructor
         // ============================================================
 
-        public FuiEmail()
+        public FuiPhoneEgypt()
         {
-            // Email accepts any characters; validation is regex-based
-            InputType = FastInputType.Any;
+            // Only digits should be allowed for EG phone numbers
+            InputType = FastInputType.IntegerOnly;
 
-            // Default placeholder
-            Placeholder = "example@mail.com";
+            // Default placeholder to guide user input
+            Placeholder = "01xxxxxxxxx";
         }
 
 
@@ -35,7 +35,7 @@ namespace FastUI.FastUILibrary.Components
         // ============================================================
 
         /// <summary>
-        /// Validates required state + email format.
+        /// Validates required state + Egyptian phone number format.
         /// </summary>
         public override bool Validate()
         {
@@ -44,17 +44,18 @@ namespace FastUI.FastUILibrary.Components
             // Required field check
             if (Required && txt == "")
             {
-                ErrorMessage = "Email is required.";
+                ErrorMessage = "Phone number required.";
                 ApplyInvalidStyle();
                 return false;
             }
 
-            // Email format validation
-            bool ok = Regex.IsMatch(txt, @"^[^\s@]+@[^\s@]+\.[^\s@]+$");
+            // Egyptian mobile number format:
+            // 010 / 011 / 012 / 015 + 8 digits
+            bool ok = Regex.IsMatch(txt, @"^(010|011|012|015)[0-9]{8}$");
 
             if (!ok)
             {
-                ErrorMessage = "Invalid email format.";
+                ErrorMessage = "Invalid Egyptian phone number.";
                 ApplyInvalidStyle();
                 return false;
             }

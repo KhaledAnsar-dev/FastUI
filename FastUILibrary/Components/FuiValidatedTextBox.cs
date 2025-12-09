@@ -16,7 +16,8 @@ namespace FastUI.FastUILibrary.Components
     /// InputType and AllowSpace are locked (read-only) to ensure
     /// the derived specialized controls define them internally.
     /// </summary>
-    public class FuiValidatedTextBox : FuiTextBox
+
+    public abstract class FuiValidatedTextBox : FuiTextBox
     {
         // ============================================================
         //  Locked Properties (ReadOnly in Designer)

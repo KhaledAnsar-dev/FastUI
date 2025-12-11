@@ -8,6 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FastUI.FastUILibrary.Core.Styling;
+using FastUI.FastUILibrary.Core.Interfaces;
+using FastUI.FastUILibrary.Themes;
+using FastUI.FastUILibrary.Themes.Infrastructure;
 
 namespace FastUI.FastUILibrary.Components
 {
@@ -33,12 +37,10 @@ namespace FastUI.FastUILibrary.Components
         // Offset for fine-tuning text position
         private Point _textOffset = Point.Empty;
 
-        // Hover text color
-        private Color _hoverTextColor = Color.Black;
+        private Color _normalColor;
+        private Color _borderNormalColor;
+        private Color _hoverTextColor;
 
-        // Normal state colors
-        private Color _normalColor = Color.White;
-        private Color _borderNormalColor = Color.Gray;
 
         // Animation timer (hover + press transitions)
         private System.Windows.Forms.Timer _animTimer;
@@ -79,6 +81,8 @@ namespace FastUI.FastUILibrary.Components
                 _animTimer.Tick += (s, e) => UpdateAnimation();
                 _animTimer.Start();
             }
+
+            ApplyTheme();
         }
 
         // Determines whether control is inside Visual Studio Designer
@@ -147,7 +151,7 @@ namespace FastUI.FastUILibrary.Components
 
         [Browsable(true)]
         [Category("Fast A - Text")]
-        public FastTextAlign TextPosition { get; set; } = FastTextAlign.Center;
+        public FastTextAlign TextPosition { get; set; }
 
 
 
@@ -201,11 +205,11 @@ namespace FastUI.FastUILibrary.Components
 
         [Browsable(true)]
         [Category("Fast D - Colors Hover")]
-        public Color HoverFillColor { get; set; } = Color.FromArgb(240, 240, 240);
+        public Color HoverFillColor { get; set; }
 
         [Browsable(true)]
         [Category("Fast D - Colors Hover")]
-        public Color HoverBorder { get; set; } = Color.Black;
+        public Color HoverBorder { get; set; }
 
         [Browsable(true)]
         [Category("Fast D - Colors Hover")]
@@ -223,11 +227,11 @@ namespace FastUI.FastUILibrary.Components
 
         [Browsable(true)]
         [Category("Fast E - Colors Press")]
-        public Color PressFillColor { get; set; } = Color.FromArgb(220, 220, 220);
+        public Color PressFillColor { get; set; }
 
         [Browsable(true)]
         [Category("Fast E - Colors Press")]
-        public Color PressBorderColor { get; set; } = Color.FromArgb(80, 80, 80);
+        public Color PressBorderColor { get; set; }
 
         [Browsable(true)]
         [Category("Fast E - Colors Press")]
@@ -255,6 +259,20 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.Radius = value; Invalidate(); }
         }
 
+
+        private string _themeName = "Windows11";
+
+        [Category("FastUI - Theme")]
+        [TypeConverter(typeof(FuiThemeConverter))]
+        public string Theme
+        {
+            get => _themeName;
+            set
+            {
+                _themeName = value;
+                ApplyTheme();
+            }
+        }
 
 
         // ============================================================
@@ -380,6 +398,53 @@ namespace FastUI.FastUILibrary.Components
             if (!IsInDesigner) _isPressed = false;
             base.OnMouseUp(e);
         }
-    }
 
+        // ============================================================
+        //  Styling
+        // ============================================================
+       
+
+        private void ApplyStyle(FuiButtonStyle s)
+        {
+            // A) TEXT
+            FontColor = s.FontColor;
+            FontSize = s.FontSize;
+            MoreFontSettings = s.MoreFontSettings;
+            MoveTextHorizontal = s.MoveTextHorizontal;
+            MoveTextVertical = s.MoveTextVertical;
+            TextPosition = s.TextPosition;
+
+            // B) LAYOUT
+            ControlWidth = s.ControlWidth;
+            ControlHeight = s.ControlHeight;
+
+            // C) NORMAL
+            _normalColor = s.FillColor;
+            _borderNormalColor = s.BorderColor;
+
+            // D) HOVER
+            HoverFillColor = s.HoverFillColor;
+            HoverBorder = s.HoverBorder;
+            _hoverTextColor = s.HoverTextColor;
+
+            // E) PRESS
+            PressFillColor = s.PressFillColor;
+            PressBorderColor = s.PressBorderColor;
+            PressDepth = s.PressDepth;
+
+            // F) STYLE
+            BorderWidth = s.BorderWidth;
+            CornerRadius = s.CornerRadius;
+
+            Invalidate();
+        }
+        private void ApplyTheme()
+        {
+            var theme = FuiThemeRegistry.Get(_themeName);
+            if (theme != null)
+                ApplyStyle(theme.GetButtonStyle());
+        }
+
+
+    }
 }

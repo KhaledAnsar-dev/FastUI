@@ -77,8 +77,8 @@ namespace FastUI.FastUILibrary.Components
         /// </summary>
         public FuiPassword()
         {
-            Placeholder = "••••••";
             InputType = FastInputType.Any; // custom handling is done manually
+            Placeholder = "••••••";
         }
 
 

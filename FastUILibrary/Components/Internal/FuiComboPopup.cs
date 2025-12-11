@@ -31,13 +31,13 @@ namespace FastUI.FastUILibrary.Components.Internal
         // ============================================================
 
         /// <summary>Corner radius of the popup border.</summary>
-        public float Radius { get; set; } = 10f;
+        public float Radius { get; set; } = 9f;
 
         /// <summary>Border color used by the popup.</summary>
         public Color BorderColor { get; set; } = Color.Gray;
 
         /// <summary>Background fill color for the popup.</summary>
-        public Color FillColor { get; set; } = Color.White;
+        public Color FillColor { get; set; } = Color.FromArgb(240,240,240);
 
         /// <summary>Thickness of the popup border.</summary>
         public float BorderThickness { get; set; } = 1f;
@@ -60,12 +60,13 @@ namespace FastUI.FastUILibrary.Components.Internal
 
         public FuiComboPopup(string[] items)
         {
-            // Popup window configuration
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;
             DoubleBuffered = true;
+
+            BackColor = Color.White; // ← خلفية الفورم الطبيعية (أبيض)
 
             // Sync renderer initial values
             _renderer.Radius = Radius;
@@ -73,7 +74,6 @@ namespace FastUI.FastUILibrary.Components.Internal
             _renderer.BorderThickness = BorderThickness;
             _renderer.BackgroundColor = FillColor;
 
-            // Create list
             _list = new ListBox()
             {
                 Dock = DockStyle.Fill,
@@ -84,25 +84,22 @@ namespace FastUI.FastUILibrary.Components.Internal
 
             _list.Items.AddRange(items);
 
-            // Selection event
             _list.Click += (s, e) =>
             {
                 if (_list.SelectedIndex >= 0)
                 {
-                    ItemSelected?.Invoke(_list.SelectedItem.ToString(), _list.SelectedIndex);
+                    ItemSelected?.Invoke(
+                        _list.SelectedItem.ToString(),
+                        _list.SelectedIndex);
                     Close();
                 }
             };
 
-            // Padding to match rounded rendering
             Padding = new Padding(4);
-
             Controls.Add(_list);
 
-            // Close popup automatically when losing focus
             Deactivate += (s, e) => Close();
         }
-
 
         // ============================================================
         //  Painting

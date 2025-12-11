@@ -23,8 +23,9 @@ namespace FastUI.FastUILibrary.Components
 
         public FuiTime()
         {
-            Placeholder = "HH:mm";
             InputType = FastInputType.Any; // We handle restrictions manually
+            Placeholder = "HH:mm";
+
         }
 
 

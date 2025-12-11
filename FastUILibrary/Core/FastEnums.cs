@@ -22,4 +22,5 @@ namespace FastUI.FastUILibrary.Core
         DecimalOnly,
         LettersOnly
     }
+
 }

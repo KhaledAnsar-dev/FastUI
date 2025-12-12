@@ -4,14 +4,26 @@ using FastUI.FastUILibrary.Core;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using FastUI.FastUILibrary.Themes.Infrastructure;
+using FastUI.FastUILibrary.Themes.Presets;
 
 namespace FastUI.FastUILibrary.Components
 {
+    /// <summary>
+    /// A modern single-line text input control for FastUI.
+    /// 
+    /// Features:
+    /// - Custom rendering engine
+    /// - Placeholder support
+    /// - Caret and selection handling
+    /// - Hover and focus animations
+    /// - Input filtering rules
+    /// - Theme and preset integration
+    /// </summary>
     public class FuiTextBox : Control
     {
-
         // ============================================================
-        //  Fields
+        //  Rendering & Animation Fields
         // ============================================================
 
         private FastShapeRenderer _renderer = new FastShapeRenderer();
@@ -25,47 +37,68 @@ namespace FastUI.FastUILibrary.Components
         private readonly float _hoverSpeed = 0.5f;
         private readonly float _focusSpeed = 0.32f;
 
+        // ============================================================
+        //  Text & Caret State
+        // ============================================================
+
         private string _textValue = "";
         private string _placeholder = "Enter text...";
         private bool _showingPlaceholder = true;
 
-        private Point _textOffset = new Point(8, 0);
-
-        private Color _normalFill = Color.White;
-        protected Color _borderNormal = Color.Gray;
-
-        private Color _hoverFill = Color.FromArgb(245, 245, 245);
-        private Color _hoverBorder = Color.Black;
-
-        private Color _focusFill = Color.White;
-        protected Color _focusBorder = Color.DodgerBlue;
-
         private FastTextAlign _textAlign = FastTextAlign.Left;
+        private Point _textOffset = new Point(8, 0);
 
         private int _caretIndex = 0;
         private int _selectionStart = 0;
         private int _selectionLength = 0;
 
         private bool _caretVisible = true;
+
         private System.Windows.Forms.Timer _caretTimer;
         private System.Windows.Forms.Timer _animTimer;
+
+        // ============================================================
+        //  Mouse Interaction
+        // ============================================================
 
         private bool _mouseDown = false;
         private int _mouseDownIndex = 0;
 
+        // ============================================================
+        //  Input Rules
+        // ============================================================
+
         private bool _allowSpace = true;
         private FastInputType _inputType = FastInputType.Any;
 
+        // ============================================================
+        //  Colors
+        // ============================================================
+
+        private Color _normalFill;
+        protected Color _borderNormal;
+
+        private Color _hoverFill;
+        private Color _hoverBorder;
+
+        private Color _focusFill;
+        protected Color _focusBorder;
+
+        // ============================================================
+        //  Theme
+        // ============================================================
+
+        private string _themeName = "Windows11";
+
+        // ============================================================
+        //  Public Properties
+        // ============================================================
+
         [Category("Fast A - Text")]
-        public Color TextColor { get; set; } = Color.Black;
+        public Color TextColor { get; set; }
 
         [Category("Fast B - Placeholder")]
-        public Color PlaceholderColor { get; set; } = Color.Gray;
-
-
-        // ============================================================
-        //  Properties
-        // ============================================================
+        public Color PlaceholderColor { get; set; }
 
         [Category("Fast A - Text")]
         public string FastText
@@ -198,10 +231,26 @@ namespace FastUI.FastUILibrary.Components
             get => _allowSpace;
             set => _allowSpace = value;
         }
+
+        [Category("Fast H - Theme")]
+        [TypeConverter(typeof(FuiThemeConverter))]
+        public string Theme
+        {
+            get => _themeName;
+            set
+            {
+                _themeName = value;
+                ApplyTheme();
+            }
+        }
+
         // ============================================================
         //  Constructor
         // ============================================================
 
+        /// <summary>
+        /// Initializes a new instance of the FuiTextBox control.
+        /// </summary>
         public FuiTextBox()
         {
             Size = new Size(200, 40);
@@ -223,12 +272,18 @@ namespace FastUI.FastUILibrary.Components
 
             InitializeCaretTimer();
             InitializeAnimationTimer();
+
+            // APPLY DEFAULT THEME ON CREATION
+            ApplyTheme();
         }
 
         // ============================================================
         //  Initialization
         // ============================================================
 
+        /// <summary>
+        /// Initializes the caret blinking timer.
+        /// </summary>
         private void InitializeCaretTimer()
         {
             _caretTimer = new System.Windows.Forms.Timer { Interval = 500 };
@@ -243,6 +298,9 @@ namespace FastUI.FastUILibrary.Components
             _caretTimer.Start();
         }
 
+        /// <summary>
+        /// Initializes the hover and focus animation timer.
+        /// </summary>
         private void InitializeAnimationTimer()
         {
             _animTimer = new System.Windows.Forms.Timer { Interval = 15 };
@@ -254,6 +312,9 @@ namespace FastUI.FastUILibrary.Components
         //  Animation Logic
         // ============================================================
 
+        /// <summary>
+        /// Updates hover and focus animation interpolation values.
+        /// </summary>
         private void UpdateAnimation()
         {
             bool changed = false;
@@ -376,11 +437,7 @@ namespace FastUI.FastUILibrary.Components
 
             if (c == ' ')
             {
-                if (_allowSpace)
-                {
-                    // allowed
-                }
-                else
+                if (!_allowSpace)
                 {
                     e.Handled = true;
                     return;
@@ -403,9 +460,7 @@ namespace FastUI.FastUILibrary.Components
                     break;
             }
 
-            // ============================================================
-            //  ⭐ NEW: Prevent overflow (no multiline) by width
-            // ============================================================
+            // Prevent inserting characters that exceed available width
             if (!CanInsertChar(c))
             {
                 e.Handled = true;
@@ -495,9 +550,7 @@ namespace FastUI.FastUILibrary.Components
                 sf
             );
 
-            // ============================================================
-            //  ⭐ FIXED CARET POSITION — Accurate pixel-perfect caret + RTL Support
-            // ============================================================
+            // Draw caret using precise pixel measurement and alignment awareness
             if (_isFocused && !_showingPlaceholder && _caretVisible)
             {
                 string beforeCaret = _textValue.Substring(0, _caretIndex);
@@ -505,33 +558,27 @@ namespace FastUI.FastUILibrary.Components
                 float textWidth = MeasureStringWidth(e.Graphics, beforeCaret, Font);
                 float totalWidth = MeasureStringWidth(e.Graphics, _textValue, Font);
 
-                int caretX = _textOffset.X; // default for LEFT
+                int caretX = _textOffset.X;
 
                 if (_textAlign == FastTextAlign.Left)
-                {
                     caretX = _textOffset.X + (int)textWidth;
-                }
                 else if (_textAlign == FastTextAlign.Center)
-                {
-                    // center alignment calculation
                     caretX = (Width / 2) - ((int)totalWidth / 2) + (int)textWidth;
-                }
                 else if (_textAlign == FastTextAlign.Right)
-                {
-                    // right alignment calculation
                     caretX = Width - _textOffset.X - (int)totalWidth + (int)textWidth;
-                }
 
                 using (Pen p = new Pen(ForeColor, 1))
                     e.Graphics.DrawLine(p, caretX, 8, caretX, Height - 8);
             }
-
         }
 
         // ============================================================
-        //  Utility
+        //  Utility Methods
         // ============================================================
 
+        /// <summary>
+        /// Calculates caret index based on mouse X position.
+        /// </summary>
         private int GetCaretIndexFromPoint(int mouseX)
         {
             for (int i = 1; i <= _textValue.Length; i++)
@@ -545,6 +592,9 @@ namespace FastUI.FastUILibrary.Components
             return _textValue.Length;
         }
 
+        /// <summary>
+        /// Linearly interpolates between two colors.
+        /// </summary>
         private Color Lerp(Color a, Color b, float t)
         {
             return Color.FromArgb(
@@ -554,10 +604,9 @@ namespace FastUI.FastUILibrary.Components
                 (int)(a.B + (b.B - a.B) * t));
         }
 
-        // ============================================================
-        //  ⭐ NEW: Accurate Text Width Calculation
-        // ============================================================
-
+        /// <summary>
+        /// Measures text width using typographic precision.
+        /// </summary>
         private float MeasureStringWidth(Graphics g, string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
@@ -569,9 +618,9 @@ namespace FastUI.FastUILibrary.Components
             return size.Width;
         }
 
-        // ============================================================
-        //  ⭐ NEW: Check if char fits in available width
-        // ============================================================
+        /// <summary>
+        /// Determines whether inserting a character would exceed available width.
+        /// </summary>
         private bool CanInsertChar(char c)
         {
             string temp = _textValue;
@@ -587,22 +636,26 @@ namespace FastUI.FastUILibrary.Components
             using (Graphics g = CreateGraphics())
             {
                 float textWidth = MeasureStringWidth(g, temp, Font);
-
-                int maxWidth = Width - (_textOffset.X * 2) - 4; // small padding
-
+                int maxWidth = Width - (_textOffset.X * 2) - 4;
                 return textWidth <= maxWidth;
             }
         }
 
         // ============================================================
-        //  AUTO PLACEHOLDER LOGIC
+        //  Placeholder Logic
         // ============================================================
 
+        /// <summary>
+        /// Updates placeholder text based on input type.
+        /// </summary>
         private void UpdatePlaceholderByInputType()
         {
             _placeholder = GetDefaultPlaceholder();
         }
 
+        /// <summary>
+        /// Returns the default placeholder for the current input type.
+        /// </summary>
         private string GetDefaultPlaceholder()
         {
             return _inputType switch
@@ -613,6 +666,49 @@ namespace FastUI.FastUILibrary.Components
                 FastInputType.LettersOnly => "Hello",
                 _ => "Enter text..."
             };
+        }
+
+        // ============================================================
+        //  Presets & Themes
+        // ============================================================
+
+        /// <summary>
+        /// Applies a visual preset to the text box.
+        /// </summary>
+        private void ApplyPreset(TextBoxPreset p)
+        {
+            TextColor = p.TextColor;
+            FontSize = p.FontSize;
+            MoveTextHorizontal = p.MoveTextHorizontal;
+            MoveTextVertical = p.MoveTextVertical;
+            TextAlignment = p.TextAlignment;
+
+            PlaceholderColor = p.PlaceholderColor;
+            PlaceholderTextColor = p.PlaceholderTextColor;
+
+            FillColor = p.FillColor;
+            BorderColor = p.BorderColor;
+
+            HoverFillColor = p.HoverFillColor;
+            HoverBorderColor = p.HoverBorderColor;
+
+            FocusFillColor = p.FocusFillColor;
+            FocusBorderColor = p.FocusBorderColor;
+
+            CornerRadius = p.CornerRadius;
+            BorderWidth = p.BorderWidth;
+
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Applies the currently selected theme.
+        /// </summary>
+        private void ApplyTheme()
+        {
+            var theme = FuiThemeRegistry.Get(_themeName);
+            if (theme != null)
+                ApplyPreset(theme.GetTextBoxPreset());
         }
     }
 }

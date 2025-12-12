@@ -4,61 +4,88 @@ using System.Drawing;
 using System.Windows.Forms;
 using FastUI.FastUILibrary.Core;
 using FastUI.FastUILibrary.Core.Rendering;
+using FastUI.FastUILibrary.Themes.Infrastructure;
+using FastUI.FastUILibrary.Themes.Presets;
 
 namespace FastUI.FastUILibrary.Components
 {
     /// <summary>
-    /// A modern FastUI wrapper around DataGridView that provides:
-    /// - Styled rows
-    /// - Hover effects
-    /// - Text alignment API
-    /// - Scroll control
-    /// - Auto column width
-    /// - Custom border rendering
+    /// A modern FastUI wrapper around DataGridView.
     /// 
-    /// All DataGridView native features remain fully accessible via InnerGrid.
+    /// Features:
+    /// - Custom container rendering (background + border)
+    /// - Row hover and selection styling
+    /// - Unified text alignment API
+    /// - Scroll behavior control
+    /// - Automatic or manual column sizing
+    /// - Theme and preset integration
+    /// 
+    /// All native DataGridView functionality remains accessible
+    /// through the InnerGrid property.
     /// </summary>
     public class FuiTable : UserControl
     {
         // ============================================================
-        //  Fields
+        //  Rendering & Core Fields
         // ============================================================
 
-        /// <summary>
-        /// Renderer responsible for drawing table background and border.
-        /// </summary>
         private readonly FastShapeRenderer _renderer = new FastShapeRenderer();
 
-        /// <summary>
-        /// Underlying DataGridView that powers the table.
-        /// Developers can still access all DataGridView features through this object.
-        /// </summary>
         public readonly DataGridView InnerGrid = new DataGridView();
 
-        /// <summary>
-        /// Stores the index of the currently hovered row (used for hover highlight).
-        /// </summary>
+        // ============================================================
+        //  Interaction State
+        // ============================================================
+
         private int _hoveredRow = -1;
 
-        /// <summary>
-        /// Padding for top spacing (e.g., room for buttons above the grid).
-        /// </summary>
+        // ============================================================
+        //  Layout State
+        // ============================================================
+
+        private bool _autoColumnWidth = true;
+
+        private int _headerHeight = 32;
+        private int _rowHeight = 28;
         private int _topPadding = 1;
 
+        // ============================================================
+        //  Colors State
+        // ============================================================
+
+        private Color _tableColor = Color.FromArgb(240, 240, 240);
+        private Color _horizontalLineColor = Color.LightGray;
+
+        // ============================================================
+        //  Text & Alignment State
+        // ============================================================
+
+        private FastTextAlign _textAlign = FastTextAlign.Left;
+
+        // ============================================================
+        //  Behavior State
+        // ============================================================
+
+        private FastTableScroll _scrollMode = FastTableScroll.Vertical;
+
+        // ============================================================
+        //  Theme
+        // ============================================================
+
+        private string _themeName = "Windows11";
 
         // ============================================================
         //  Constructor
         // ============================================================
 
         /// <summary>
-        /// Initializes the FuiTable with default styles, layout,
-        /// hover logic, scroll mode, and DataGridView configuration.
+        /// Initializes a new instance of the FuiTable control
+        /// and configures the internal DataGridView.
         /// </summary>
         public FuiTable()
         {
             DoubleBuffered = true;
 
-            // Base DataGridView configuration
             InnerGrid.Parent = this;
             InnerGrid.Dock = DockStyle.Fill;
             InnerGrid.BorderStyle = BorderStyle.None;
@@ -79,10 +106,7 @@ namespace FastUI.FastUILibrary.Components
             Padding = new Padding(10);
             ApplyTableColor(Color.FromArgb(240, 240, 240));
 
-
-            // --------------------------
-            // Hover logic
-            // --------------------------
+            // Hover tracking
             InnerGrid.MouseMove += (s, e) =>
             {
                 var hit = InnerGrid.HitTest(e.X, e.Y);
@@ -106,7 +130,6 @@ namespace FastUI.FastUILibrary.Components
                 }
             };
 
-            // Prevent selecting header row
             InnerGrid.SelectionChanged += (s, e) =>
             {
                 if (InnerGrid.CurrentCell != null && InnerGrid.CurrentCell.RowIndex == -1)
@@ -115,15 +138,17 @@ namespace FastUI.FastUILibrary.Components
                     InnerGrid.CurrentCell = null;
                 }
             };
+
+            // APPLY DEFAULT THEME ON CREATION
+            ApplyTheme();
         }
 
-
         // ============================================================
-        //  Helpers
+        //  Row Styling Helpers
         // ============================================================
 
         /// <summary>
-        /// Restores default row style (background, text, font, alignment).
+        /// Restores the normal visual style for a row.
         /// </summary>
         private void ApplyRowNormalStyle(int index)
         {
@@ -131,11 +156,11 @@ namespace FastUI.FastUILibrary.Components
             row.DefaultCellStyle.BackColor = _tableColor;
             row.DefaultCellStyle.ForeColor = RowTextColor;
             row.DefaultCellStyle.Font = RowTextFont;
-            row.DefaultCellStyle.Alignment = ConvertAlignment(TextAlign);
+            row.DefaultCellStyle.Alignment = ConvertAlignment(_textAlign);
         }
 
         /// <summary>
-        /// Applies hover style to a given row index.
+        /// Applies hover visual style to a row.
         /// </summary>
         private void ApplyRowHoverStyle(int index)
         {
@@ -143,7 +168,7 @@ namespace FastUI.FastUILibrary.Components
             row.DefaultCellStyle.BackColor = RowHoverColor;
             row.DefaultCellStyle.ForeColor = RowHoverTextColor;
             row.DefaultCellStyle.Font = RowHoverTextFont;
-            row.DefaultCellStyle.Alignment = ConvertAlignment(TextAlign);
+            row.DefaultCellStyle.Alignment = ConvertAlignment(_textAlign);
         }
 
         /// <summary>
@@ -161,11 +186,11 @@ namespace FastUI.FastUILibrary.Components
         }
 
         /// <summary>
-        /// Applies text alignment to all columns, rows, and headers.
+        /// Applies text alignment to all rows, columns, and headers.
         /// </summary>
         private void ApplyTextAlignmentToAllCells()
         {
-            var a = ConvertAlignment(TextAlign);
+            var a = ConvertAlignment(_textAlign);
 
             InnerGrid.ColumnHeadersDefaultCellStyle.Alignment = a;
 
@@ -178,6 +203,28 @@ namespace FastUI.FastUILibrary.Components
             InnerGrid.Invalidate();
         }
 
+        // ============================================================
+        //  Table Color Logic
+        // ============================================================
+
+        /// <summary>
+        /// Applies base table color to grid, rows, and headers.
+        /// </summary>
+        private void ApplyTableColor(Color c)
+        {
+            _tableColor = c;
+
+            _renderer.BackgroundColor = c;
+            InnerGrid.ColumnHeadersDefaultCellStyle.BackColor = c;
+            InnerGrid.ColumnHeadersDefaultCellStyle.SelectionBackColor = c;
+            InnerGrid.DefaultCellStyle.BackColor = c;
+            InnerGrid.RowsDefaultCellStyle.BackColor = c;
+            InnerGrid.BackgroundColor = c;
+
+            InnerGrid.GridColor = _horizontalLineColor;
+
+            InnerGrid.Invalidate();
+        }
 
         // ============================================================
         //  Fast A - Behavior
@@ -190,11 +237,6 @@ namespace FastUI.FastUILibrary.Components
             set => InnerGrid.ReadOnly = value;
         }
 
-        private FastTableScroll _scrollMode = FastTableScroll.Vertical;
-
-        /// <summary>
-        /// Controls scrollbar visibility (None, Vertical, Horizontal, Both).
-        /// </summary>
         [Category("Fast A - Behavior")]
         public FastTableScroll ScrollMode
         {
@@ -216,16 +258,10 @@ namespace FastUI.FastUILibrary.Components
             }
         }
 
-
         // ============================================================
         //  Fast B - Layout
         // ============================================================
 
-        private bool _autoColumnWidth = true;
-
-        /// <summary>
-        /// When enabled, columns stretch automatically using Fill mode.
-        /// </summary>
         [Category("Fast B - Layout")]
         public bool AutoColumnWidth
         {
@@ -233,7 +269,6 @@ namespace FastUI.FastUILibrary.Components
             set
             {
                 _autoColumnWidth = value;
-
                 InnerGrid.AutoSizeColumnsMode =
                     value ? DataGridViewAutoSizeColumnsMode.Fill
                           : DataGridViewAutoSizeColumnsMode.None;
@@ -242,12 +277,6 @@ namespace FastUI.FastUILibrary.Components
             }
         }
 
-        private int _headerHeight = 32;
-        private int _rowHeight = 28;
-
-        /// <summary>
-        /// Height of header row.
-        /// </summary>
         [Category("Fast B - Layout")]
         public int HeaderHeight
         {
@@ -255,9 +284,6 @@ namespace FastUI.FastUILibrary.Components
             set { _headerHeight = value; InnerGrid.ColumnHeadersHeight = value; Invalidate(); }
         }
 
-        /// <summary>
-        /// Height of each data row.
-        /// </summary>
         [Category("Fast B - Layout")]
         public int RowHeight
         {
@@ -274,9 +300,6 @@ namespace FastUI.FastUILibrary.Components
             }
         }
 
-        /// <summary>
-        /// Extra padding above the table (useful for placing buttons/toolbars).
-        /// </summary>
         [Category("Fast B - Layout")]
         public int TopPadding
         {
@@ -284,26 +307,15 @@ namespace FastUI.FastUILibrary.Components
             set
             {
                 _topPadding = Math.Max(1, value);
-                this.Padding = new Padding(
-                    this.Padding.Left,
-                    _topPadding,
-                    this.Padding.Right,
-                    this.Padding.Bottom
-                );
+                Padding = new Padding(Padding.Left, _topPadding, Padding.Right, Padding.Bottom);
                 Invalidate();
             }
         }
-
 
         // ============================================================
         //  Fast C - Colors (Table Base)
         // ============================================================
 
-        private Color _tableColor = Color.FromArgb(240, 240, 240);
-
-        /// <summary>
-        /// Background color of the table surface and default rows.
-        /// </summary>
         [Category("Fast C - Colors (Table Base)")]
         public Color TableColor
         {
@@ -311,59 +323,26 @@ namespace FastUI.FastUILibrary.Components
             set => ApplyTableColor(value);
         }
 
-        /// <summary>
-        /// Applies table background color to grid, headers, and cells.
-        /// </summary>
-        private void ApplyTableColor(Color c)
-        {
-            _tableColor = c;
-
-            _renderer.BackgroundColor = c;
-            InnerGrid.ColumnHeadersDefaultCellStyle.BackColor = c;
-            InnerGrid.ColumnHeadersDefaultCellStyle.SelectionBackColor = c;
-            InnerGrid.DefaultCellStyle.BackColor = c;
-            InnerGrid.RowsDefaultCellStyle.BackColor = c;
-            InnerGrid.BackgroundColor = c;
-
-            InnerGrid.GridColor = HorizontalLineColor;
-
-            InnerGrid.Invalidate();
-        }
-
-
         // ============================================================
         //  Fast D - Colors (Rows)
         // ============================================================
 
-        /// <summary>
-        /// Background color used when hovering over a row.
-        /// </summary>
         [Category("Fast D - Colors (Rows)")]
         public Color RowHoverColor { get; set; } = Color.FromArgb(250, 250, 250);
 
-        /// <summary>
-        /// Color used for selected rows.
-        /// </summary>
         [Category("Fast D - Colors (Rows)")]
         public Color RowSelectedColor { get; set; } = Color.FromArgb(220, 230, 255);
-
 
         // ============================================================
         //  Fast E - Colors (Grid Lines)
         // ============================================================
 
-        private Color _horizontalLineColor = Color.LightGray;
-
-        /// <summary>
-        /// Color of horizontal separator lines between rows.
-        /// </summary>
         [Category("Fast E - Colors (Grid Lines)")]
         public Color HorizontalLineColor
         {
             get => _horizontalLineColor;
             set { _horizontalLineColor = value; InnerGrid.GridColor = value; Invalidate(); }
         }
-
 
         // ============================================================
         //  Fast F - Text
@@ -381,11 +360,6 @@ namespace FastUI.FastUILibrary.Components
         [Category("Fast F - Text")]
         public Color RowSelectedTextColor { get; set; } = Color.Black;
 
-        private FastTextAlign _textAlign = FastTextAlign.Left;
-
-        /// <summary>
-        /// Controls horizontal text alignment across all table cells.
-        /// </summary>
         [Category("Fast F - Text")]
         public FastTextAlign TextAlign
         {
@@ -396,7 +370,6 @@ namespace FastUI.FastUILibrary.Components
                 ApplyTextAlignmentToAllCells();
             }
         }
-
 
         // ============================================================
         //  Fast G - Fonts
@@ -414,14 +387,10 @@ namespace FastUI.FastUILibrary.Components
         [Category("Fast G - Fonts")]
         public Font RowSelectedTextFont { get; set; } = new Font("Segoe UI", 10f);
 
-
         // ============================================================
         //  Fast H - Border
         // ============================================================
 
-        /// <summary>
-        /// Border color of the table container.
-        /// </summary>
         [Category("Fast H - Border")]
         public Color BorderColor
         {
@@ -429,9 +398,6 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.BorderColor = value; Invalidate(); }
         }
 
-        /// <summary>
-        /// Border corner radius for rounded edges.
-        /// </summary>
         [Category("Fast H - Border")]
         public float BorderRadius
         {
@@ -439,9 +405,6 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.Radius = value; Invalidate(); }
         }
 
-        /// <summary>
-        /// Border thickness around the table.
-        /// </summary>
         [Category("Fast H - Border")]
         public float BorderWidth
         {
@@ -449,14 +412,76 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.BorderThickness = value; Invalidate(); }
         }
 
+        // ============================================================
+        //  Fast I - Theme
+        // ============================================================
+
+        [Category("Fast I - Theme")]
+        [TypeConverter(typeof(FuiThemeConverter))]
+        public string Theme
+        {
+            get => _themeName;
+            set
+            {
+                _themeName = value;
+                ApplyTheme();
+            }
+        }
+
+        // ============================================================
+        //  Presets & Themes
+        // ============================================================
+
+        /// <summary>
+        /// Applies a visual table preset.
+        /// </summary>
+        private void ApplyPreset(TablePreset p)
+        {
+            HeaderHeight = p.HeaderHeight;
+            RowHeight = p.RowHeight;
+            TopPadding = p.TopPadding;
+
+            TableColor = p.TableColor;
+
+            RowHoverColor = p.RowHoverColor;
+            RowSelectedColor = p.RowSelectedColor;
+
+            HorizontalLineColor = p.HorizontalLineColor;
+
+            HeaderTextColor = p.HeaderTextColor;
+            RowTextColor = p.RowTextColor;
+            RowHoverTextColor = p.RowHoverTextColor;
+            RowSelectedTextColor = p.RowSelectedTextColor;
+            TextAlign = p.TextAlign;
+
+            HeaderTextFont = p.HeaderTextFont;
+            RowTextFont = p.RowTextFont;
+            RowHoverTextFont = p.RowHoverTextFont;
+            RowSelectedTextFont = p.RowSelectedTextFont;
+
+            BorderColor = p.BorderColor;
+            BorderRadius = p.BorderRadius;
+            BorderWidth = p.BorderWidth;
+
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Applies the currently selected theme.
+        /// </summary>
+        private void ApplyTheme()
+        {
+            var theme = FuiThemeRegistry.Get(_themeName);
+            if (theme != null)
+                ApplyPreset(theme.GetTablePreset());
+        }
 
         // ============================================================
         //  Painting
         // ============================================================
 
         /// <summary>
-        /// Renders the table container background and border using FastUI renderer.
-        /// Also applies all font & color settings to DataGridView cells.
+        /// Renders the table container background and border.
         /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -475,7 +500,6 @@ namespace FastUI.FastUILibrary.Components
                 Point.Empty
             );
 
-            // Apply text colors/fonts dynamically
             InnerGrid.ColumnHeadersDefaultCellStyle.ForeColor = HeaderTextColor;
             InnerGrid.ColumnHeadersDefaultCellStyle.Font = HeaderTextFont;
 
@@ -486,26 +510,24 @@ namespace FastUI.FastUILibrary.Components
             InnerGrid.DefaultCellStyle.SelectionForeColor = RowSelectedTextColor;
         }
 
-
         // ============================================================
         //  Public API
         // ============================================================
 
         /// <summary>
         /// Adds a new column to the table.
-        /// Name is used for both column header and internal key.
         /// </summary>
         public void AddColumn(string name, int width = 100)
         {
             InnerGrid.Columns.Add(name, name);
             InnerGrid.Columns[name].Width = width;
 
-            InnerGrid.Columns[name].DefaultCellStyle.Alignment = ConvertAlignment(TextAlign);
-            InnerGrid.ColumnHeadersDefaultCellStyle.Alignment = ConvertAlignment(TextAlign);
+            InnerGrid.Columns[name].DefaultCellStyle.Alignment = ConvertAlignment(_textAlign);
+            InnerGrid.ColumnHeadersDefaultCellStyle.Alignment = ConvertAlignment(_textAlign);
         }
 
         /// <summary>
-        /// Adds a new data row to the table with the specified values.
+        /// Adds a new data row to the table.
         /// </summary>
         public void AddRow(params object[] values)
         {
@@ -513,8 +535,8 @@ namespace FastUI.FastUILibrary.Components
 
             foreach (DataGridViewRow r in InnerGrid.Rows)
             {
-                r.Height = RowHeight;
-                r.DefaultCellStyle.Alignment = ConvertAlignment(TextAlign);
+                r.Height = _rowHeight;
+                r.DefaultCellStyle.Alignment = ConvertAlignment(_textAlign);
             }
         }
     }

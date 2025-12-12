@@ -1,34 +1,73 @@
 ﻿using FastUI.Core.Rendering;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FastUI.FastUILibrary.Components
 {
+    /// <summary>
+    /// A modern FastUI panel container with custom rendering.
+    /// 
+    /// Features:
+    /// - Custom background and border rendering
+    /// - Hover state styling
+    /// - Focus tracking from child controls
+    /// - Rounded corners support
+    /// - Flicker-free rendering
+    /// 
+    /// Designed to act as a styled container for FastUI layouts.
+    /// </summary>
     public class FuiPanel : Panel
     {
+        // ============================================================
+        //  Rendering
+        // ============================================================
+
+        /// <summary>
+        /// Renderer responsible for drawing panel background and border.
+        /// </summary>
         private FastPanelRenderer _renderer = new FastPanelRenderer();
+
+
+        // ============================================================
+        //  State
+        // ============================================================
 
         private bool _isHovered = false;
         private bool _isFocused = false;
 
-        // Normal colors
+
+        // ============================================================
+        //  Colors – Normal
+        // ============================================================
+
         private Color _fillColor = Color.White;
         private Color _borderColor = Color.Gray;
 
-        // Hover colors
+
+        // ============================================================
+        //  Colors – Hover
+        // ============================================================
+
         private Color _hoverFillColor = Color.White;
         private Color _hoverBorderColor = Color.Gray;
 
-        // Focus color
+
+        // ============================================================
+        //  Colors – Focus
+        // ============================================================
+
         private Color _focusedBorderColor = Color.Black;
 
+
+        // ============================================================
+        //  Constructor
+        // ============================================================
+
+        /// <summary>
+        /// Initializes a new instance of the FuiPanel.
+        /// </summary>
         public FuiPanel()
         {
             Size = new Size(200, 120);
@@ -44,16 +83,21 @@ namespace FastUI.FastUILibrary.Components
 
             BackColor = Color.Transparent;
 
-            // Mouse events for hover
+            // Hover tracking
             MouseEnter += (s, e) => { _isHovered = true; Invalidate(); };
             MouseLeave += (s, e) => { _isHovered = false; Invalidate(); };
 
-            // Track focus from children
+            // Track focus from child controls
             ControlAdded += ChildAdded;
             ControlRemoved += ChildRemoved;
 
             UpdateStyles();
         }
+
+
+        // ============================================================
+        //  Child Focus Tracking
+        // ============================================================
 
         private void ChildAdded(object sender, ControlEventArgs e)
         {
@@ -75,7 +119,7 @@ namespace FastUI.FastUILibrary.Components
 
         private void ChildLostFocus(object sender, EventArgs e)
         {
-            // Check if no child controls have focus
+            // Check if any child control is still focused
             foreach (Control c in Controls)
             {
                 if (c.Focused)
@@ -86,8 +130,9 @@ namespace FastUI.FastUILibrary.Components
             Invalidate();
         }
 
+
         // ============================================================
-        // FastUI – General
+        //  FastUI – General
         // ============================================================
 
         [Browsable(true)]
@@ -106,8 +151,9 @@ namespace FastUI.FastUILibrary.Components
             set { Height = value; Invalidate(); }
         }
 
+
         // ============================================================
-        // FastUI – Style (Normal)
+        //  FastUI – Style (Normal)
         // ============================================================
 
         [Browsable(true)]
@@ -126,8 +172,9 @@ namespace FastUI.FastUILibrary.Components
             set { _borderColor = value; Invalidate(); }
         }
 
+
         // ============================================================
-        // Hover Style
+        //  FastUI – Hover
         // ============================================================
 
         [Browsable(true)]
@@ -146,8 +193,9 @@ namespace FastUI.FastUILibrary.Components
             set { _hoverBorderColor = value; Invalidate(); }
         }
 
+
         // ============================================================
-        // Focus Style
+        //  FastUI – Focus
         // ============================================================
 
         [Browsable(true)]
@@ -158,8 +206,9 @@ namespace FastUI.FastUILibrary.Components
             set { _focusedBorderColor = value; Invalidate(); }
         }
 
+
         // ============================================================
-        // Shape
+        //  Shape
         // ============================================================
 
         [Browsable(true)]
@@ -178,8 +227,9 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.Radius = Math.Max(0, value); Invalidate(); }
         }
 
+
         // ============================================================
-        // Rendering
+        //  Rendering
         // ============================================================
 
         protected override void OnPaint(PaintEventArgs e)
@@ -211,15 +261,19 @@ namespace FastUI.FastUILibrary.Components
             base.OnPaint(e);
         }
 
+
+        // ============================================================
+        //  Flicker-Free Rendering
+        // ============================================================
+
         protected override CreateParams CreateParams
         {
             get
             {
                 var cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED (no flicker)
+                cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
                 return cp;
             }
         }
     }
-
 }

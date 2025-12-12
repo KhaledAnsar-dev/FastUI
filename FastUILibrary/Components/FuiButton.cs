@@ -2,54 +2,66 @@
 using System;
 using FastUI.FastUILibrary.Core;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using FastUI.FastUILibrary.Core.Styling;
-using FastUI.FastUILibrary.Core.Interfaces;
-using FastUI.FastUILibrary.Themes;
 using FastUI.FastUILibrary.Themes.Infrastructure;
+using FastUI.FastUILibrary.Themes.Presets;
 
 namespace FastUI.FastUILibrary.Components
 {
+    /// <summary>
+    /// A modern animated button control for FastUI.
+    /// 
+    /// Features:
+    /// - Custom rendering engine
+    /// - Hover and press animations
+    /// - Theme and preset support
+    /// - Text alignment and offset control
+    /// - Fully styleable colors and shape
+    /// </summary>
     public class FuiButton : Control
     {
         // ============================================================
-        //  Fields
+        //  Rendering & Animation Fields
         // ============================================================
 
-        // Renderer used to draw button visuals (background, border, text)
         private FastShapeRenderer _renderer = new FastShapeRenderer();
 
-        // Hover animation state
         private bool _isHovered = false;
         private float _hoverLerp = 0f;
         private readonly float _hoverSpeed = 0.5f;
 
-        // Press animation state
         private bool _isPressed = false;
         private float _pressLerp = 0f;
         private readonly float _pressSpeed = 0.25f;
 
-        // Offset for fine-tuning text position
+        private System.Windows.Forms.Timer _animTimer;
+
+        // ============================================================
+        //  Text & Layout State
+        // ============================================================
+
         private Point _textOffset = Point.Empty;
+
+        // ============================================================
+        //  Colors
+        // ============================================================
 
         private Color _normalColor;
         private Color _borderNormalColor;
         private Color _hoverTextColor;
 
+        // ============================================================
+        //  Theme
+        // ============================================================
 
-        // Animation timer (hover + press transitions)
-        private System.Windows.Forms.Timer _animTimer;
-
+        private string _themeName = "Windows11";
 
         // ============================================================
         //  Constructor
         // ============================================================
 
+        /// <summary>
+        /// Initializes a new instance of the FuiButton control.
+        /// </summary>
         public FuiButton()
         {
             Size = new Size(120, 40);
@@ -64,16 +76,14 @@ namespace FastUI.FastUILibrary.Components
                 true
             );
 
-            // Cursor
-            this.Cursor = Cursors.Hand;
-
+            Cursor = Cursors.Hand;
             BackColor = Color.Transparent;
             UpdateStyles();
 
             _renderer.BackgroundColor = _normalColor;
             _renderer.BorderColor = _borderNormalColor;
 
-            // Initialize animation timer
+            // Initialize animation timer (disabled in designer)
             if (!IsInDesigner)
             {
                 _animTimer = new System.Windows.Forms.Timer();
@@ -82,19 +92,19 @@ namespace FastUI.FastUILibrary.Components
                 _animTimer.Start();
             }
 
+            // APPLY DEFAULT THEME ON CREATION
             ApplyTheme();
         }
 
-        // Determines whether control is inside Visual Studio Designer
+        /// <summary>
+        /// Determines whether the control is running inside Visual Studio Designer.
+        /// </summary>
         private bool IsInDesigner =>
             DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
-
-
         // ============================================================
-        //  Properties (Organized A → G)
+        //  Properties
         // ============================================================
-
 
         // ----------------------------
         // A) TEXT
@@ -148,12 +158,9 @@ namespace FastUI.FastUILibrary.Components
             set { _textOffset.Y = value; Invalidate(); }
         }
 
-
         [Browsable(true)]
         [Category("Fast A - Text")]
         public FastTextAlign TextPosition { get; set; }
-
-
 
         // ----------------------------
         // B) LAYOUT
@@ -175,8 +182,6 @@ namespace FastUI.FastUILibrary.Components
             set { Height = value; Invalidate(); }
         }
 
-
-
         // ----------------------------
         // C) COLORS – NORMAL
         // ----------------------------
@@ -196,8 +201,6 @@ namespace FastUI.FastUILibrary.Components
             get => _borderNormalColor;
             set { _borderNormalColor = value; Invalidate(); }
         }
-
-
 
         // ----------------------------
         // D) COLORS – HOVER
@@ -219,8 +222,6 @@ namespace FastUI.FastUILibrary.Components
             set { _hoverTextColor = value; Invalidate(); }
         }
 
-
-
         // ----------------------------
         // E) COLORS – PRESS
         // ----------------------------
@@ -236,8 +237,6 @@ namespace FastUI.FastUILibrary.Components
         [Browsable(true)]
         [Category("Fast E - Colors Press")]
         public int PressDepth { get; set; } = 1;
-
-
 
         // ----------------------------
         // F) STYLE
@@ -259,10 +258,11 @@ namespace FastUI.FastUILibrary.Components
             set { _renderer.Radius = value; Invalidate(); }
         }
 
+        // ----------------------------
+        // G) THEME
+        // ----------------------------
 
-        private string _themeName = "Windows11";
-
-        [Category("FastUI - Theme")]
+        [Category("Fast G - Theme")]
         [TypeConverter(typeof(FuiThemeConverter))]
         public string Theme
         {
@@ -274,16 +274,17 @@ namespace FastUI.FastUILibrary.Components
             }
         }
 
-
         // ============================================================
         //  Animation Logic
         // ============================================================
 
+        /// <summary>
+        /// Updates hover and press animation interpolation values.
+        /// </summary>
         private void UpdateAnimation()
         {
             bool needUpdate = false;
 
-            // Hover animation
             if (_isHovered && _hoverLerp < 1f)
             {
                 _hoverLerp += _hoverSpeed;
@@ -297,7 +298,6 @@ namespace FastUI.FastUILibrary.Components
                 needUpdate = true;
             }
 
-            // Press animation
             if (_isPressed && _pressLerp < 1f)
             {
                 _pressLerp += _pressSpeed;
@@ -315,12 +315,13 @@ namespace FastUI.FastUILibrary.Components
                 Invalidate();
         }
 
-
-
         // ============================================================
-        //  Color Interpolation
+        //  Utility
         // ============================================================
 
+        /// <summary>
+        /// Linearly interpolates between two colors.
+        /// </summary>
         private Color LerpColor(Color a, Color b, float t)
         {
             return Color.FromArgb(
@@ -330,8 +331,6 @@ namespace FastUI.FastUILibrary.Components
                 (int)(a.B + (b.B - a.B) * t)
             );
         }
-
-
 
         // ============================================================
         //  Painting
@@ -369,8 +368,6 @@ namespace FastUI.FastUILibrary.Components
             );
         }
 
-
-
         // ============================================================
         //  Mouse Events
         // ============================================================
@@ -400,51 +397,49 @@ namespace FastUI.FastUILibrary.Components
         }
 
         // ============================================================
-        //  Styling
+        //  Presets & Themes
         // ============================================================
-       
 
-        private void ApplyStyle(FuiButtonStyle s)
+        /// <summary>
+        /// Applies a visual preset to the button.
+        /// </summary>
+        private void ApplyPreset(ButtonPreset p)
         {
-            // A) TEXT
-            FontColor = s.FontColor;
-            FontSize = s.FontSize;
-            MoreFontSettings = s.MoreFontSettings;
-            MoveTextHorizontal = s.MoveTextHorizontal;
-            MoveTextVertical = s.MoveTextVertical;
-            TextPosition = s.TextPosition;
+            FontColor = p.FontColor;
+            FontSize = p.FontSize;
+            MoreFontSettings = p.MoreFontSettings;
+            MoveTextHorizontal = p.MoveTextHorizontal;
+            MoveTextVertical = p.MoveTextVertical;
+            TextPosition = p.TextPosition;
 
-            // B) LAYOUT
-            ControlWidth = s.ControlWidth;
-            ControlHeight = s.ControlHeight;
+            ControlWidth = p.ControlWidth;
+            ControlHeight = p.ControlHeight;
 
-            // C) NORMAL
-            _normalColor = s.FillColor;
-            _borderNormalColor = s.BorderColor;
+            _normalColor = p.FillColor;
+            _borderNormalColor = p.BorderColor;
 
-            // D) HOVER
-            HoverFillColor = s.HoverFillColor;
-            HoverBorder = s.HoverBorder;
-            _hoverTextColor = s.HoverTextColor;
+            HoverFillColor = p.HoverFillColor;
+            HoverBorder = p.HoverBorder;
+            _hoverTextColor = p.HoverTextColor;
 
-            // E) PRESS
-            PressFillColor = s.PressFillColor;
-            PressBorderColor = s.PressBorderColor;
-            PressDepth = s.PressDepth;
+            PressFillColor = p.PressFillColor;
+            PressBorderColor = p.PressBorderColor;
+            PressDepth = p.PressDepth;
 
-            // F) STYLE
-            BorderWidth = s.BorderWidth;
-            CornerRadius = s.CornerRadius;
+            BorderWidth = p.BorderWidth;
+            CornerRadius = p.CornerRadius;
 
             Invalidate();
         }
+
+        /// <summary>
+        /// Applies the currently selected theme.
+        /// </summary>
         private void ApplyTheme()
         {
             var theme = FuiThemeRegistry.Get(_themeName);
             if (theme != null)
-                ApplyStyle(theme.GetButtonStyle());
+                ApplyPreset(theme.GetButtonPreset());
         }
-
-
     }
 }

@@ -26,8 +26,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="FastUILibrary\Themes\CustomThemes\" />
-  </ItemGroup>
-
 </Project>

@@ -1,3 +1,7 @@
+![Model](Assets/FastUIModel3.png)
+
+---
+
 # FastUI
 
 FastUI is a lightweight, modern UI toolkit for WinForms, designed to bring clean visuals, reusable styling, and structured theming to traditional desktop applications — without external dependencies or designer complexity.
@@ -120,6 +124,24 @@ fuiTable1.Theme = "Apple";
 ```
 
 Themes are resolved by name using the internal theme registry.
+
+---
+
+## Visual Preview
+
+Below are visual previews of FastUI components using different built-in themes. Each image showcases the full set of core components styled consistently under a single theme.
+
+- **Windows11 Theme** — clean, native-like WinForms appearance
+- **Google Material Theme** — bold colors and rounded surfaces
+- **Apple Theme** — minimal, soft, and balanced UI
+- **Mayora Theme** — custom design example demonstrating full theming flexibility
+
+> Images are provided to give a quick visual overview of how FastUI themes affect all components together.
+
+![Windows11](Assets/windows11.png)
+![Apple](Assets/apple.png)
+![GoogleMaterial](Assets/googlematerial.png)
+![Mayora](Assets/mayora.png)
 
 ---
 

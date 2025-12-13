@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<!-- ========================================================= -->
+	<!-- Core Project Settings -->
+	<!-- ========================================================= -->
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- NuGet Package Info -->
 		<PackageId>FastUI.WinForms</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.1.0</Version>
 		<Authors>Khaled Ansar</Authors>
 		<Company>Khaled Ansar</Company>
 
@@ -27,34 +29,63 @@
 
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon.png</PackageIcon>
 
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 
-		<PackageIcon>icon.png</PackageIcon>
+		<LangVersion>latest</LangVersion>
 
 	</PropertyGroup>
 
+	<!-- ========================================================= -->
+	<!-- Nullable Reference Types (Only for .NET 8+) -->
+	<!-- ========================================================= -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	
+	<!-- ========================================================= -->
+	<!-- .NET Framework 4.8 Resource Fix -->
+	<!-- ========================================================= -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+	</PropertyGroup>
+
+	<!-- ========================================================= -->
+	<!-- Resource support for net48 (safe for all targets) -->
+	<!-- ========================================================= -->
+	<ItemGroup>
+		<PackageReference Include="System.Resources.Extensions" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+
+	<!-- ========================================================= -->
+	<!-- NuGet Content -->
+	<!-- ========================================================= -->
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
 		<None Include="README.md" Pack="true" PackagePath="" />
 		<None Include="icon.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 
-
+	<!-- ========================================================= -->
+	<!-- Resources -->
+	<!-- ========================================================= -->
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 	<ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
 
 </Project>

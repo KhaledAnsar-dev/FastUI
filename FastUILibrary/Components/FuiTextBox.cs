@@ -325,14 +325,14 @@ namespace FastUI.FastUILibrary.Components
             if (Math.Abs(_hoverLerp - hoverTarget) > 0.01f)
             {
                 _hoverLerp += (_isHovered ? _hoverSpeed : -_hoverSpeed);
-                _hoverLerp = Math.Clamp(_hoverLerp, 0f, 1f);
+                _hoverLerp = MathUtils.Clamp(_hoverLerp, 0f, 1f);
                 changed = true;
             }
 
             if (Math.Abs(_focusLerp - focusTarget) > 0.01f)
             {
                 _focusLerp += (_isFocused ? _focusSpeed : -_focusSpeed);
-                _focusLerp = Math.Clamp(_focusLerp, 0f, 1f);
+                _focusLerp = MathUtils.Clamp(_focusLerp, 0f, 1f);
                 changed = true;
             }
 

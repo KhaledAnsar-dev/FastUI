@@ -1,142 +1,259 @@
-![FastUI Model](Assets/FastUIModel3.png)
+![Model](Assets/FastUIModel3.png)
 
 ---
 
-# FastUI — Modern UI Toolkit for WinForms
+# FastUI
 
-FastUI is a lightweight, modern toolkit that brings clean, reusable, and elegant components to WinForms — powered by its own rendering engine and a growing library of smart input controls.
+FastUI is a lightweight, modern UI toolkit for WinForms, designed to bring clean visuals, reusable styling, and structured theming to traditional desktop applications — without external dependencies or designer complexity.
 
-Born from a backend developer’s need for clean testing tools, FastUI evolved into a flexible mini-framework that makes WinForms development faster, cleaner, and far more modern.
-
----
-
-## Why FastUI?
-
-WinForms is fast — but visually outdated. FastUI bridges that gap by providing:
-
-- Ready-made modern controls
-- Built-in input validation
-- Reusable styling and rendering
-- Simple, readable, human-friendly API
-- Zero designer complications
-- No external dependencies
-
-FastUI focuses on productivity and clarity:
-
-"Write less UI code. Reuse more logic. Build faster tools."
+FastUI focuses on productivity, clarity, and consistency, allowing developers to build elegant WinForms tools faster while keeping full control over behavior and rendering.
 
 ---
 
-## Core Features
+## Key Goals
 
-### Custom Rendering Engine
+- Modernize WinForms visuals without abandoning its performance
+- Provide reusable, preset-based styling across components
+- Keep APIs simple, explicit, and developer-friendly
+- Avoid external UI frameworks or heavy dependencies
 
-A rendering engine designed for full control over shapes, borders, animations, and modern UI behavior.
+---
 
-### Smart Input System
+## Core Concepts
 
-Input controls that support:
+### 1. Custom Rendering Engine
 
-- Required fields
+FastUI uses its own lightweight rendering engine to draw:
+
+- Backgrounds
+- Borders
+- Rounded corners
+- Hover / focus / press states
+
+This ensures full visual control and consistent behavior across all components.
+
+---
+
+### Clear & Human-Friendly Properties
+
+FastUI replaces confusing or scattered WinForms properties with clear, readable, and well-organized alternatives.
+
+Examples:
+
+- `TextColor` instead of `ForeColor`
+- `MoveTextHorizontal` instead of `TextOffsetX`
+- `RowHeight` instead of `RowTemplate.Height`
+- `TableColor` instead of managing:
+
+  - `ColumnHeadersDefaultCellStyle.BackColor`
+  - `SelectionBackColor`
+  - `RowsDefaultCellStyle.BackColor`
+  - `BackgroundColor`
+  - `GridColor`
+
+All properties are grouped into logical categories, clearly named, and easy to discover in the designer.
+
+---
+
+### 2. Smart Input System
+
+FastUI includes a set of smart input controls designed to eliminate repetitive validation logic.
+
+Features include:
+
+- Required field handling
 - Auto-validation
 - Formatting rules
 - Custom masking and input restrictions
 
-### Extended Component Library
+This saves development time and avoids rewriting the same validation logic across projects.
 
-A complete collection of ready-to-use building blocks.
+Examples:
 
-### Clean API
+- Email input with built-in validation
+- Date input with strict formats (YYYY-MM-DD)
+- Time input with automatic colon insertion (HH:mm)
+- Password input with internal policies exposed through simple properties:
 
-Readable, direct, and easy to integrate.
-
----
-
-## Available Components (15+)
-
-### Core Controls
-
-| Component   | Description                                     |
-| ----------- | ----------------------------------------------- |
-| FuiButton   | Modern button with hover and press animations   |
-| FuiPanel    | Panel with rounded corners and custom rendering |
-| FuiComboBox | Styled dropdown with custom popup               |
-| FuiTable    | Data table with clean rows, columns, and APIs   |
-| FuiTextBox  | Base modern text input with full control        |
+  - Forbidden passwords list (`string[]`)
+  - Minimum length enforcement
+  - Optional complexity mode (upper, lower, digit, symbol)
 
 ---
 
-### Validated Inputs (Smart Controls)
+### 3. Preset-Based Theming System
 
-All components below are built on top of **FuiValidatedTextBox** and include their own validation logic.
+FastUI introduces a preset-based theming architecture.
 
-| Component           | Description                                             |
-| ------------------- | ------------------------------------------------------- |
-| FuiEmail            | Email validation                                        |
-| FuiPhoneDz          | Algerian phone number validation                        |
-| FuiPhoneEgypt       | Egyptian phone number validation                        |
-| FuiPhoneUSA         | US phone number validation                              |
-| FuiDate             | Strict date format (YYYY-MM-DD)                         |
-| FuiTime             | Smart time input (HH:mm) with automatic colon insertion |
-| FuiCreditCardNumber | Strict 16-digit card input                              |
-| FuiCreditCardCVV    | Strict 3-digit CVV                                      |
-| FuiCreditCardDate   | Expiry date (MM/YY)                                     |
-| FuiAddress          | General purpose address field                           |
-| FuiPassword         | Advanced password component with policy support         |
+Instead of styling controls individually, themes provide presets that describe how each component should look.
 
----
+Each theme can define presets for:
 
-## Password Component Enhancements
+- Buttons
+- TextBoxes
+- ComboBoxes
+- Tables
 
-FuiPassword now includes:
+This approach makes styling:
 
-- Real text masking
-- Forbidden passwords list (string[])
-- Minimum length enforcement
-- Optional complexity mode (upper, lower, digit, symbol)
-- Secure input handling
-- Structured validation methods for clarity
+- Consistent
+- Reusable
+- Easy to extend
 
 ---
 
-## Validation Framework
+### Built-in Themes
 
-All validated components support:
+FastUI ships with several ready-to-use themes:
 
-- Required field handling
-- Custom error messages
-- Automatic invalid styling
-- Organized and override-ready validation methods
+- Windows11 — clean and native-like
+- Google Material — bold colors and rounded surfaces
+- Apple — minimal and soft UI
+- Mayora — custom design example
 
-This enables consistent and reliable forms in WinForms applications.
-
----
-
-## Goals
-
-- Modernize WinForms with minimal complexity
-- Provide reusable UI components
-- Reduce repetitive form logic
-- Enable fast prototyping and testing
-- Keep the library clean, extensible, and open-source
+Themes can be applied per control or across the entire application.
 
 ---
 
-## Project Status
+## Example: Applying a Theme
 
-FastUI is stable for:
+```csharp
+fuiButton1.Theme = "Windows11";
+fuiTextBox1.Theme = "GoogleMaterial";
+fuiTable1.Theme = "Apple";
+```
 
-- Internal tools
-- Testing utilities
-- Admin dashboards
-- Lightweight business applications
-
-More components and improvements are planned as the rendering engine evolves.
+Themes are resolved by name using the internal theme registry.
 
 ---
 
-## Contribute
+## Visual Preview
 
-FastUI is open-source. Developers are encouraged to fork, extend, and contribute to its growth.
+Below are visual previews of FastUI components using different built-in themes. Each image showcases the full set of core components styled consistently under a single theme.
 
-More documentation and examples will be added as the project progresses.
+- **Windows11 Theme** — clean, native-like WinForms appearance
+- **Google Material Theme** — bold colors and rounded surfaces
+- **Apple Theme** — minimal, soft, and balanced UI
+- **Mayora Theme** — custom design example demonstrating full theming flexibility
+
+> Images are provided to give a quick visual overview of how FastUI themes affect all components together.
+
+![Windows11](Assets/windows11.png)
+![Apple](Assets/apple.png)
+![GoogleMaterial](Assets/googlematerial.png)
+![Mayora](Assets/mayora.png)
+
+---
+
+## Available Components
+
+Core Components:
+
+- **FuiButton** — modern button with hover, press, and animation support
+- **FuiTextBox** — custom single-line input with placeholder, caret, and validation rules
+- **FuiComboBox** — styled dropdown with hover and focus behavior
+- **FuiTable** — DataGridView wrapper with modern styling, row effects, and unified alignment
+- **FuiPanel** — panel with rounded corners and custom rendering
+
+Smart Input Components:
+
+- **FuiEmail** — email validation
+- **FuiPhoneDz** — Algerian phone number validation
+- **FuiPhoneEgypt** — Egyptian phone number validation
+- **FuiPhoneUSA** — US phone number validation
+- **FuiDate** — strict date format (YYYY-MM-DD)
+- **FuiTime** — smart time input (HH:mm)
+- **FuiCreditCardNumber** — strict 16-digit card input
+- **FuiCreditCardCVV** — strict 3-digit CVV
+- **FuiCreditCardDate** — expiry date (MM/YY)
+- **FuiPassword** — advanced password component with policy support
+
+All native WinForms functionality remains accessible.
+
+---
+
+## Extending FastUI
+
+### Creating a Custom Theme
+
+To create your own theme, implement the theme interface and provide presets:
+
+```csharp
+public class MyCustomTheme : IFuiTheme
+{
+    public ButtonPreset GetButtonPreset() => new ButtonPreset { /* values */ };
+    public TextBoxPreset GetTextBoxPreset() => new TextBoxPreset { /* values */ };
+    public ComboBoxPreset GetComboBoxPreset() => new ComboBoxPreset { /* values */ };
+    public TablePreset GetTablePreset() => new TablePreset { /* values */ };
+}
+```
+
+Then register it once:
+
+```csharp
+FuiThemeRegistry.Register("MyTheme", new MyCustomTheme());
+```
+
+Your theme will automatically appear in the designer theme list.
+
+---
+
+## Open Source
+
+FastUI is fully open source and free to use.
+
+- No licensing fees
+- Can be extended or modified freely
+- Designed to be built upon
+
+The codebase is fully documented, and each component includes clear inline documentation to help developers understand behavior quickly.
+
+---
+
+## Philosophy
+
+FastUI does not try to replace WinForms.
+
+It enhances it.
+
+The goal is to keep WinForms:
+
+- Fast
+- Explicit
+- Predictable
+
+while offering a modern UI experience and a clean architectural foundation.
+
+---
+
+## NuGet Package
+
+FastUI is available on NuGet and can be installed directly into any WinForms project.
+
+**Package ID:** `FastUI.WinForms`
+
+Using Package Manager:
+
+```powershell
+Install-Package FastUI.WinForms
+```
+
+Using .NET CLI:
+
+```bash
+dotnet add package FastUI.WinForms
+```
+
+- No external dependencies
+- Works with .NET Framework and modern .NET
+- Fully designer-friendly
+
+---
+
+## License
+
+MIT License
+
+---
+
+FastUI — Write less UI code. Reuse more logic. Build cleaner WinForms apps.

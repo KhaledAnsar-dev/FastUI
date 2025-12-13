@@ -476,6 +476,23 @@ namespace FastUI.FastUILibrary.Components
                 ApplyPreset(theme.GetTablePreset());
         }
 
+
+        // ============================================================
+        //  Theme Lifecycle
+        // ============================================================
+
+        /// <summary>
+        /// Applies the selected theme after the control handle
+        /// has been fully created to ensure safe styling.
+        /// </summary>
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            // Apply theme after WinForms finishes control initialization
+            BeginInvoke((Action)(() => ApplyTheme()));
+        }
+
         // ============================================================
         //  Painting
         // ============================================================

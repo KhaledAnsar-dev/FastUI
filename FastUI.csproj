@@ -1,17 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 
-  <ItemGroup>
-    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
-  </ItemGroup>
+		<!-- NuGet Package Info -->
+		<PackageId>FastUI.WinForms</PackageId>
+		<Version>1.0.1</Version>
+		<Authors>Khaled Ansar</Authors>
+		<Company>Khaled Ansar</Company>
 
-  <ItemGroup>
+		<Description>
+			FastUI is a lightweight UI toolkit for creating clean, modern WinForms applications.
+			Built for developers targeting the .NET Windows Forms platform.
+		</Description>
+
+		<PackageTags>
+			fastui; csharp; dotnet; winforms; ui; ui-controls; custom-controls;
+			modern-ui; lightweight-ui; winforms-toolkit; ui-toolkit; desktop-ui
+		</PackageTags>
+
+		<RepositoryUrl>https://github.com/KhaledAnsar-dev/FastUI</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/KhaledAnsar-dev/FastUI</PackageProjectUrl>
+
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+		<PackageIcon>icon.png</PackageIcon>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<None Include="README.md" Pack="true" PackagePath="" />
+		<None Include="icon.png" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

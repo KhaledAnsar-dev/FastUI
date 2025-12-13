@@ -1,8 +1,5 @@
 ﻿using FastUI.FastUILibrary.Themes.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using FastUI.FastUILibrary.Themes.BuiltIn;
 
 namespace FastUI.FastUILibrary.Themes.Infrastructure
@@ -36,7 +33,6 @@ namespace FastUI.FastUILibrary.Themes.Infrastructure
                 // >>> ["YourThemeName3"] = new YourThemeClass3(), <<<
                 // >>> ["YourThemeName4"] = new YourThemeClass4(), <<<
                 // >>> ["YourThemeName5"] = new YourThemeClass5(), <<<
-
             };
 
             // Register each theme in the global theme registry
@@ -47,11 +43,14 @@ namespace FastUI.FastUILibrary.Themes.Infrastructure
         /// <summary>
         /// Forces the CLR to load this class and execute
         /// its static constructor.
+        /// 
         /// This method is intentionally empty and exists
         /// only to trigger theme registration.
         /// </summary>
-        public static void EnsureLoaded() { }
-
+        public static void EnsureLoaded()
+        {
+            // Touching the type forces CLR initialization
+            _ = typeof(ThemeRegistration);
+        }
     }
-
 }

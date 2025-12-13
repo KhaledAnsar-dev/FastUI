@@ -256,4 +256,5 @@ MIT License
 
 ---
 
-FastUI — Write less UI code. Reuse more logic. Build cleaner WinForms apps.
+FastUI.WinForms — Write less UI code. Reuse more logic.
+Build cleaner WinForms apps.
